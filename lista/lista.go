@@ -1,24 +1,34 @@
 package lista
 
 type Lista[T any] interface {
+
+	// EstaVacia Devuelve true si la lista esta vacia, false en caso contrario
 	EstaVacia() bool
 
+	// InsertarPrimero Inserta un elemento al principio de la lista
 	InsertarPrimero(T)
 
+	// InsertarUltimo Inserta un elemento al final de la lista
 	InsertarUltimo(T)
 
+	// BorrarPrimero Borra y devuelve el primer elemento de la lista
 	BorrarPrimero() T
 
+	// VerPrimero devuelve el primer elemento de la lista
 	VerPrimero() T
 
+	// VerUltimo devuelve el ultimo elemento de la lista
 	VerUltimo() T
 
+	// Largo devuelve el largo de la lista
 	Largo() int
 
+	// Iterar recorre todos los datos de la lista hasta el final o hasta que el func visitar devuelve false
 	Iterar(visitar func(T) bool)
 
-	Iterador() IteradorLista[T]
-}
+	// Iterador es el iterador externa de la lista
+	EstaVacia() bool
+  }
 
 type IteradorLista[T any] interface {
 
