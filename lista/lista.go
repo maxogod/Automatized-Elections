@@ -27,8 +27,8 @@ type Lista[T any] interface {
 	Iterar(visitar func(T) bool)
 
 	// Iterador es el iterador externa de la lista
-	Iterador() IteradorLista[T]
-}
+	EstaVacia() bool
+  }
 
 type IteradorLista[T any] interface {
 
