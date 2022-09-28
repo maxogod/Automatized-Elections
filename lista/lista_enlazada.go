@@ -16,16 +16,27 @@ type iteradorListaEnlazada[T any] struct {
 }
 
 func (l listaEnlazada[T]) EstaVacia() bool {
-	//TODO implement me
-	panic("implement me")
+	return l.largo == 0
 }
 
-func (l listaEnlazada[T]) InsertarPrimero(t T) {
-	//TODO implement me
-	panic("implement me")
+func (listaEnlazada[T]) crearNodo(nuevoDato T) *nodo[T] {
+	return &nodo[T]{dato: nuevoDato}
 }
 
-func (l listaEnlazada[T]) InsertarUltimo(t T) {
+func (l listaEnlazada[T]) InsertarPrimero(nuevoDato T) {
+	nuevoNodo := l.crearNodo(nuevoDato)
+
+	if l.primero == nil {
+		l.primero = nuevoNodo
+	} else {
+		l.primero.proximo = l.primero
+		l.primero = nuevoNodo
+	}
+	l.ultimo = nuevoNodo
+	l.largo++
+}
+
+func (l listaEnlazada[T]) InsertarUltimo(dato T) {
 	//TODO implement me
 	panic("implement me")
 }

@@ -41,9 +41,10 @@ type IteradorLista[T any] interface {
 	// Siguiente Avanza al siguiente dato y devuelve el dato que acaba de dejar atras
 	Siguiente() T
 
-	// Insertar Inserta un nuevo dato en la posision anterior a la que esta parado
+	// Insertar Inserta un nuevo dato en la posision anterior a la que estaba parado y se queda parado en esa posicion
 	Insertar(T)
 
-	// Borrar Borra el dato en el que esta parado y lo devuelve
+	// Borrar Borra el dato en el que esta parado y lo devuelve y se queda parado en esa misma posicion
+	// (que ahora tendria el dato que era el siguiente al que borre)
 	Borrar() T
 }
