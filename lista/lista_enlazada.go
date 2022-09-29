@@ -94,8 +94,9 @@ func (l listaEnlazada[T]) Largo() int {
 
 // Iterar - Iterador Interno
 func (l listaEnlazada[T]) Iterar(visitar func(T) bool) {
-	//TODO implement me
-	panic("implement me")
+	for l.primero != nil && visitar(l.primero.dato) {
+		l.primero = l.primero.proximo
+	}
 }
 
 // Iterador - Crea un iterador externo
