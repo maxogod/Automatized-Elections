@@ -16,12 +16,18 @@ type iteradorListaEnlazada[T any] struct {
 	//TODO averiguar q onda esto
 }
 
-func (l listaEnlazada[T]) EstaVacia() bool {
-	return l.largo == 0
-}
-
 func (listaEnlazada[T]) crearNodo(nuevoDato T) *nodo[T] {
 	return &nodo[T]{dato: nuevoDato}
+}
+
+func (l listaEnlazada[T]) errores() {
+	if l.EstaVacia() {
+		panic("che loco esta vacio")
+	}
+}
+
+func (l listaEnlazada[T]) EstaVacia() bool {
+	return l.largo == 0
 }
 
 func (l *listaEnlazada[T]) InsertarPrimero(nuevoDato T) {
@@ -55,21 +61,27 @@ func (l *listaEnlazada[T]) InsertarUltimo(nuevoDato T) {
 }
 
 func (l *listaEnlazada[T]) BorrarPrimero() T {
+	l.errores()
 	dato := l.primero.dato
-	l.primero = l.primero.proximo
-	l.ultimo = l.ultimo.proximo
-	if l.primero == nil {
+	if l.largo == 1 {
+		l.primero = nil
 		l.ultimo = nil
+	} else {
+		l.primero = l.primero.proximo
+		l.primero.anterior = l.primero.anterior.anterior
 	}
 	l.largo--
+
 	return dato
 }
 
 func (l listaEnlazada[T]) VerPrimero() T {
+	l.errores()
 	return l.primero.dato
 }
 
 func (l listaEnlazada[T]) VerUltimo() T {
+	l.errores()
 	return l.ultimo.dato
 }
 
