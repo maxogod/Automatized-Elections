@@ -1,7 +1,6 @@
 package lista_test
 
 import (
-	"fmt"
 	"github.com/stretchr/testify/require"
 	"lista/lista"
 	"testing"
@@ -9,15 +8,23 @@ import (
 
 func Test(t *testing.T) {
 	lista := lista.CrearListaEnlazada[int]()
-	//lista.InsertarPrimero(1)
-	//lista.InsertarPrimero(2)
-	//lista.InsertarPrimero(3)
+	lista.InsertarPrimero(3)
+	lista.InsertarPrimero(2)
+	lista.InsertarPrimero(1)
 
-	lista.InsertarUltimo(123)
-	lista.InsertarUltimo(23)
-	lista.InsertarUltimo(0)
+	lista.InsertarUltimo(4)
+	lista.InsertarUltimo(5)
+	lista.InsertarUltimo(6)
 
-	fmt.Print(lista)
+	lista.BorrarPrimero()
+	lista.BorrarPrimero()
+	lista.BorrarPrimero()
+	lista.BorrarPrimero()
+	lista.BorrarPrimero()
+	lista.BorrarPrimero()
 
-	require.True(t, true)
+	require.True(t, lista.EstaVacia())
+	require.PanicsWithValue(t, "che loco esta vacio", func() { lista.VerPrimero() })
+	require.PanicsWithValue(t, "che loco esta vacio", func() { lista.VerUltimo() })
+	require.Equal(t, 0, lista.Largo())
 }
