@@ -1,8 +1,9 @@
 package lista
 
 type nodo[T any] struct {
-	dato    T
-	proximo *nodo[T]
+	dato     T
+	proximo  *nodo[T]
+	anterior *nodo[T]
 }
 
 type listaEnlazada[T any] struct {
@@ -23,42 +24,57 @@ func (listaEnlazada[T]) crearNodo(nuevoDato T) *nodo[T] {
 	return &nodo[T]{dato: nuevoDato}
 }
 
-func (l listaEnlazada[T]) InsertarPrimero(nuevoDato T) {
+func (l *listaEnlazada[T]) InsertarPrimero(nuevoDato T) {
 	nuevoNodo := l.crearNodo(nuevoDato)
 
 	if l.primero == nil {
 		l.primero = nuevoNodo
+		l.ultimo = nuevoNodo
 	} else {
-		l.primero.proximo = l.primero
+		prox := l.primero
 		l.primero = nuevoNodo
+		l.primero.proximo = prox
+		l.primero.proximo.anterior = l.primero
 	}
-	l.ultimo = nuevoNodo
 	l.largo++
 }
 
-func (l listaEnlazada[T]) InsertarUltimo(dato T) {
-	//TODO implement me
-	panic("implement me")
+func (l *listaEnlazada[T]) InsertarUltimo(nuevoDato T) {
+	nuevoNodo := l.crearNodo(nuevoDato)
+
+	if l.ultimo == nil {
+		l.primero = nuevoNodo
+		l.ultimo = nuevoNodo
+	} else {
+		ant := l.ultimo
+		l.ultimo = nuevoNodo
+		l.ultimo.anterior = ant
+		l.ultimo.anterior.proximo = l.ultimo
+	}
+	l.largo++
 }
 
-func (l listaEnlazada[T]) BorrarPrimero() T {
-	//TODO implement me
-	panic("implement me")
+func (l *listaEnlazada[T]) BorrarPrimero() T {
+	dato := l.primero.dato
+	l.primero = l.primero.proximo
+	l.ultimo = l.ultimo.proximo
+	if l.primero == nil {
+		l.ultimo = nil
+	}
+	l.largo--
+	return dato
 }
 
 func (l listaEnlazada[T]) VerPrimero() T {
-	//TODO implement me
-	panic("implement me")
+	return l.primero.dato
 }
 
 func (l listaEnlazada[T]) VerUltimo() T {
-	//TODO implement me
-	panic("implement me")
+	return l.ultimo.dato
 }
 
 func (l listaEnlazada[T]) Largo() int {
-	//TODO implement me
-	panic("implement me")
+	return l.largo
 }
 
 func (l listaEnlazada[T]) Iterar(visitar func(T) bool) {
@@ -72,6 +88,5 @@ func (l listaEnlazada[T]) Iterador() IteradorLista[T] {
 }
 
 func CrearListaEnlazada[T any]() Lista[T] {
-	l := new(listaEnlazada[T])
-	return l
+	return new(listaEnlazada[T])
 }
