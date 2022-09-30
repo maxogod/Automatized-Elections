@@ -25,7 +25,7 @@ func (l listaEnlazada[T]) crearNodo(nuevoDato T) *nodo[T] {
 
 func (l listaEnlazada[T]) errores() {
 	if l.EstaVacia() {
-		panic("che loco esta vacio")
+		panic("La lista esta vacia")
 	}
 }
 
@@ -128,28 +128,44 @@ func (i *iteradorListaEnlazada[T]) Insertar(nuevoDato T) {
 	if i.lista.EstaVacia() {
 		i.lista.InsertarPrimero(nuevoDato)
 		i.posicionActual = i.lista.primero
-		return
 	} else if i.posicionActual == nil {
 		// Esta en el final
 		i.lista.InsertarUltimo(nuevoDato)
 		i.posicionActual = i.lista.ultimo
-		return
-	}
-	// En el medio
-	nuevoNodo := i.lista.crearNodo(nuevoDato)
+	} else {
+		// En el medio
+		nuevoNodo := i.lista.crearNodo(nuevoDato)
 
-	prox := i.posicionActual
-	i.posicionActual = nuevoNodo
-	i.posicionActual.proximo = prox
-	i.posicionActual.anterior = prox.anterior
-	i.posicionActual.proximo.anterior = i.posicionActual
-	i.posicionActual.anterior.proximo = i.posicionActual
-	i.lista.largo++
+		prox := i.posicionActual
+		i.posicionActual = nuevoNodo
+		i.posicionActual.proximo = prox
+		i.posicionActual.anterior = prox.anterior
+		i.posicionActual.proximo.anterior = i.posicionActual
+		i.posicionActual.anterior.proximo = i.posicionActual
+		i.lista.largo++
+	}
 }
 
 func (i *iteradorListaEnlazada[T]) Borrar() T {
-	//TODO implement me
-	panic("implement me")
+	i.lista.errores()
+	dato := i.posicionActual.dato
+
+	if i.posicionActual.proximo == nil {
+		i.lista.primero = nil
+		i.lista.ultimo = nil
+		i.posicionActual = nil
+		i.lista.largo--
+	} else if i.posicionActual.anterior == nil {
+		i.lista.BorrarPrimero()
+		i.Siguiente()
+	} else {
+		anterior := i.posicionActual.anterior
+		//i.posicionActual.anterior.proximo = proximo
+		i.posicionActual = i.posicionActual.proximo
+		i.posicionActual.anterior = anterior
+		i.lista.largo--
+	}
+	return dato
 }
 
 // CrearListaEnlazada - Funcion creadora de lista
