@@ -169,7 +169,6 @@ func (i *iteradorListaEnlazada[T]) Borrar() T {
 		i.Siguiente()
 	} else {
 		anterior := i.posicionActual.anterior
-		//i.posicionActual.anterior.proximo = proximo
 		i.posicionActual = i.posicionActual.proximo
 		i.posicionActual.anterior = anterior
 		i.lista.largo--
