@@ -107,3 +107,70 @@ func TestIteradorInterno(t *testing.T) {
 	})
 	require.EqualValues(t, 1, *ptrUltimoValorVisto)
 }
+
+func TestIteradorExterno(t *testing.T) {
+	t.Log("Pruebas de iterador externo")
+	const LISTA_LARGO = 6
+	lista := TDALista.CrearListaEnlazada[int]()
+	lista.InsertarPrimero(3)
+	lista.InsertarPrimero(2)
+	lista.InsertarPrimero(1)
+	lista.InsertarUltimo(4)
+	lista.InsertarUltimo(5)
+	lista.InsertarUltimo(6)
+
+	iter := lista.Iterador()
+	for i := 1; i < LISTA_LARGO+1; i++ {
+		// Decimos que cuando estamos en el ultimo dato (6) hay siguiente
+		// porque es nil, y seria el verdadero final (obvio nil no tiene siguiente)
+		require.True(t, iter.HaySiguiente())
+		require.Equal(t, i, iter.Siguiente())
+	}
+	require.False(t, iter.HaySiguiente())
+}
+
+func TestBorrarOrdenadamenteIteradoresExternos(t *testing.T) {
+	const LISTA_LARGO = 6
+	lista := TDALista.CrearListaEnlazada[int]()
+	lista.InsertarPrimero(3)
+	lista.InsertarPrimero(2)
+	lista.InsertarPrimero(1)
+	lista.InsertarUltimo(4)
+	lista.InsertarUltimo(5)
+	lista.InsertarUltimo(6)
+
+	iter := lista.Iterador()
+
+	for i := 1; i < LISTA_LARGO+1; i++ {
+		require.True(t, iter.HaySiguiente())
+		require.Equal(t, i, iter.Borrar())
+	}
+	require.True(t, lista.EstaVacia())
+	require.False(t, iter.HaySiguiente())
+}
+
+func TestBorrarEnMedioDeListaConIteradoresExternos(t *testing.T) {
+	const (
+		NODO_A_BORRAR        = 4
+		SIGUIENTE_A_BORRAR   = NODO_A_BORRAR + 1
+		SIGUIENTE_AL_BORRADO = SIGUIENTE_A_BORRAR + 1
+	)
+
+	lista := TDALista.CrearListaEnlazada[int]()
+	lista.InsertarPrimero(3)
+	lista.InsertarPrimero(2)
+	lista.InsertarPrimero(1)
+
+	lista.InsertarUltimo(4)
+	lista.InsertarUltimo(5)
+	lista.InsertarUltimo(6)
+
+	iter := lista.Iterador()
+	for i := 1; i < NODO_A_BORRAR; i++ {
+		require.Equal(t, i, iter.Siguiente())
+	}
+	require.Equal(t, NODO_A_BORRAR, iter.VerActual())
+	require.Equal(t, NODO_A_BORRAR, iter.Borrar())
+	require.Equal(t, SIGUIENTE_A_BORRAR, iter.Borrar())
+	require.Equal(t, SIGUIENTE_AL_BORRADO, iter.VerActual())
+}

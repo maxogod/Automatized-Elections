@@ -19,17 +19,17 @@ type iteradorListaEnlazada[T any] struct {
 
 // Metodos de listaEnlazada
 
-func (l listaEnlazada[T]) crearNodo(nuevoDato T) *nodo[T] {
+func (l *listaEnlazada[T]) crearNodo(nuevoDato T) *nodo[T] {
 	return &nodo[T]{dato: nuevoDato}
 }
 
-func (l listaEnlazada[T]) errores() {
+func (l *listaEnlazada[T]) errores() {
 	if l.EstaVacia() {
 		panic("La lista esta vacia")
 	}
 }
 
-func (l listaEnlazada[T]) EstaVacia() bool {
+func (l *listaEnlazada[T]) EstaVacia() bool {
 	return l.largo == 0
 }
 
@@ -78,17 +78,17 @@ func (l *listaEnlazada[T]) BorrarPrimero() T {
 	return dato
 }
 
-func (l listaEnlazada[T]) VerPrimero() T {
+func (l *listaEnlazada[T]) VerPrimero() T {
 	l.errores()
 	return l.primero.dato
 }
 
-func (l listaEnlazada[T]) VerUltimo() T {
+func (l *listaEnlazada[T]) VerUltimo() T {
 	l.errores()
 	return l.ultimo.dato
 }
 
-func (l listaEnlazada[T]) Largo() int {
+func (l *listaEnlazada[T]) Largo() int {
 	return l.largo
 }
 
@@ -109,15 +109,23 @@ func (l *listaEnlazada[T]) Iterador() IteradorLista[T] {
 
 //Metodos de iteradorListaEnlazada (EXTERNO)
 
-func (i iteradorListaEnlazada[T]) VerActual() T {
+func (i *iteradorListaEnlazada[T]) VerActual() T {
+	i.errorDeIterador()
 	return i.posicionActual.dato
 }
 
-func (i iteradorListaEnlazada[T]) HaySiguiente() bool {
+func (i *iteradorListaEnlazada[T]) HaySiguiente() bool {
 	return i.posicionActual != nil
 }
 
+func (i *iteradorListaEnlazada[T]) errorDeIterador() {
+	if !i.HaySiguiente() {
+		panic("El iterador termino de iterar")
+	}
+}
+
 func (i *iteradorListaEnlazada[T]) Siguiente() T {
+	i.errorDeIterador()
 	actual := i.posicionActual.dato
 	i.posicionActual = i.posicionActual.proximo
 	return actual
@@ -147,6 +155,7 @@ func (i *iteradorListaEnlazada[T]) Insertar(nuevoDato T) {
 }
 
 func (i *iteradorListaEnlazada[T]) Borrar() T {
+	i.errorDeIterador()
 	i.lista.errores()
 	dato := i.posicionActual.dato
 
