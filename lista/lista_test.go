@@ -1,6 +1,7 @@
 package lista_test
 
 import (
+	"fmt"
 	"github.com/stretchr/testify/require"
 	TDALista "lista/lista"
 	"testing"
@@ -169,8 +170,80 @@ func TestBorrarEnMedioDeListaConIteradoresExternos(t *testing.T) {
 	for i := 1; i < NODO_A_BORRAR; i++ {
 		require.Equal(t, i, iter.Siguiente())
 	}
+
 	require.Equal(t, NODO_A_BORRAR, iter.VerActual())
 	require.Equal(t, NODO_A_BORRAR, iter.Borrar())
 	require.Equal(t, SIGUIENTE_A_BORRAR, iter.Borrar())
 	require.Equal(t, SIGUIENTE_AL_BORRADO, iter.VerActual())
+
+	lista.Iterar(func(valor int) bool {
+
+		fmt.Println(valor)
+		return true
+	})
+}
+
+func TestInsertarConIteradoresExternos(t *testing.T) {
+	const (
+		LISTA_LARGO_INICIAL = 3
+		LISTA_LARGO_FINAL   = 2 * LISTA_LARGO_INICIAL
+	)
+	lista := TDALista.CrearListaEnlazada[int]()
+	lista.InsertarPrimero(3)
+	lista.InsertarPrimero(2)
+	lista.InsertarPrimero(1)
+
+	iter := lista.Iterador()
+
+	for i := 1; i < LISTA_LARGO_INICIAL+1; i++ {
+		require.Equal(t, i, iter.Siguiente())
+	}
+
+	for i := 4; i < LISTA_LARGO_FINAL+1; i++ {
+		iter.Insertar(i)
+		require.Equal(t, i, iter.Siguiente())
+	}
+
+	require.False(t, lista.EstaVacia())
+
+	i := 1
+	lista.Iterar(func(valor int) bool {
+		require.Equal(t, i, valor)
+		i++
+		return true
+	})
+
+}
+
+func TestInsertarEnMedioConIteradoresExternos(t *testing.T) {
+	const (
+		LISTA_LARGO_INICIAL = 3
+		LISTA_LARGO_FINAL   = 2 * LISTA_LARGO_INICIAL
+	)
+	lista := TDALista.CrearListaEnlazada[int]()
+
+	const (
+		POSICION_INSERT_INICIAL = 1
+		DATO_NUEVO_INSERTADO    = 3
+	)
+
+	lista.InsertarPrimero(4)
+	lista.InsertarPrimero(2)
+	lista.InsertarPrimero(1)
+
+	iter := lista.Iterador()
+	iter.Siguiente()
+	iter.Siguiente()
+
+	iter.Insertar(DATO_NUEVO_INSERTADO)
+
+	require.False(t, lista.EstaVacia())
+
+	i := 1
+	lista.Iterar(func(valor int) bool {
+		require.Equal(t, i, valor)
+		i++
+		return true
+	})
+
 }
