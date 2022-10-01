@@ -173,6 +173,7 @@ func (i *iteradorListaEnlazada[T]) Borrar() T {
 	} else if i.posicionActual.proximo == nil {
 		// Final
 		i.posicionActual.anterior.proximo = nil
+		i.lista.ultimo = i.lista.ultimo.anterior
 		i.posicionActual = nil
 		i.lista.largo--
 	} else {
