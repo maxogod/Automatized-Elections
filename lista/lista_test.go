@@ -1,6 +1,7 @@
 package lista_test
 
 import (
+	"fmt"
 	"github.com/stretchr/testify/require"
 	TDALista "lista/lista"
 	"testing"
@@ -250,4 +251,43 @@ func TestInsertarEnMedioConIterador(t *testing.T) {
 		return true
 	})
 
+}
+
+func TestOne(t *testing.T) {
+	// Pruebas durante development - NO INCLUIR -
+	lista := TDALista.CrearListaEnlazada[int]()
+
+	lista.InsertarUltimo(1)
+	lista.InsertarUltimo(2)
+	lista.InsertarUltimo(3)
+	lista.InsertarUltimo(4)
+	lista.InsertarUltimo(8)
+	lista.InsertarUltimo(6)
+	lista.InsertarUltimo(8)
+	lista.InsertarPrimero(0)
+
+	for iter := lista.Iterador(); iter.HaySiguiente(); {
+		if iter.VerActual()%2 == 0 {
+			iter.Borrar()
+		} else {
+			iter.Siguiente()
+		}
+	}
+	lista.Iterar(func(valor int) bool {
+		fmt.Println(valor)
+		return true
+	})
+}
+
+func TestTwo(t *testing.T) {
+	lista := TDALista.CrearListaEnlazada[int]()
+	lista.InsertarPrimero(1)
+	iter := lista.Iterador()
+
+	iter.Insertar(2)
+
+	lista.Iterar(func(valor int) bool {
+		fmt.Println(valor)
+		return true
+	})
 }
