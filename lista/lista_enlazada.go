@@ -134,16 +134,19 @@ func (i *iteradorListaEnlazada[T]) Siguiente() T {
 }
 
 func (i *iteradorListaEnlazada[T]) Insertar(nuevoDato T) {
-	const _LARGO_MAX = 1 // largo max para considerar el unico dato como inicio de lista
 
-	if i.lista.largo <= _LARGO_MAX {
-		// Principio
+	if i.lista.EstaVacia() {
+		// Vacia
 		i.lista.InsertarPrimero(nuevoDato)
 		i.posicionActual = i.lista.primero
 	} else if i.posicionActual == nil {
 		// Final
 		i.lista.InsertarUltimo(nuevoDato)
 		i.posicionActual = i.lista.ultimo
+	} else if i.posicionActual.anterior == nil {
+		// Principio
+		i.lista.InsertarPrimero(nuevoDato)
+		i.posicionActual = i.lista.primero
 	} else {
 		// Medio
 		nuevoNodo := i.lista.crearNodo(nuevoDato)

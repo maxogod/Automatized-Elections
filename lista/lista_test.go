@@ -1,7 +1,6 @@
 package lista_test
 
 import (
-	"fmt"
 	"github.com/stretchr/testify/require"
 	TDALista "lista/lista"
 	"testing"
@@ -115,39 +114,47 @@ func TestListaVaciaConIterador(t *testing.T) {
 	t.Log("aseguramos de que nusetros iteradores lanzan exceptiones")
 	lista := TDALista.CrearListaEnlazada[int]()
 	iter := lista.Iterador()
+
 	require.PanicsWithValue(t, "El iterador termino de iterar", func() { iter.Borrar() })
 	require.PanicsWithValue(t, "El iterador termino de iterar", func() { iter.VerActual() })
 	require.PanicsWithValue(t, "El iterador termino de iterar", func() { iter.Siguiente() })
 }
 
-func TestInsertarFinalConIterador(t *testing.T) {
-	t.Log("Insertamos datos al final de una lista con un iterador externo")
-	const (
-		LISTA_LARGO_INICIAL = 3
-		LISTA_LARGO_FINAL   = 2 * LISTA_LARGO_INICIAL
-	)
+func TestInsertarAlprincipio(t *testing.T) {
+	t.Log("Insertamos estando en el principio con iterador y checkeamos que haya sido efectivamente al principio")
+
 	lista := TDALista.CrearListaEnlazada[int]()
-	lista.InsertarPrimero(3)
 	lista.InsertarPrimero(2)
-	lista.InsertarPrimero(1)
 
 	iter := lista.Iterador()
+	iter.Insertar(1)
+	iter.Insertar(0)
 
-	for i := 1; i < LISTA_LARGO_INICIAL+1; i++ {
-		require.Equal(t, i, iter.Siguiente())
-	}
-
-	for i := 4; i < LISTA_LARGO_FINAL+1; i++ {
-		iter.Insertar(i)
-		require.Equal(t, i, iter.Siguiente())
-	}
-
-	require.False(t, lista.EstaVacia())
-
-	i := 1
+	i := 0
 	lista.Iterar(func(valor int) bool {
 		require.Equal(t, i, valor)
 		i++
+		return true
+	})
+
+}
+
+func TestInsertarAlFinal(t *testing.T) {
+	t.Log("Insertamos estando en el final con iterador y checkeamos que haya sido efectivamente al final")
+
+	lista := TDALista.CrearListaEnlazada[int]()
+	lista.InsertarPrimero(2)
+
+	iter := lista.Iterador()
+	iter.Siguiente() // Estamos parados en nil (osea el final)
+	iter.Insertar(1)
+	iter.Siguiente()
+	iter.Insertar(0)
+
+	i := 2
+	lista.Iterar(func(valor int) bool {
+		require.Equal(t, i, valor)
+		i--
 		return true
 	})
 
@@ -251,43 +258,4 @@ func TestInsertarEnMedioConIterador(t *testing.T) {
 		return true
 	})
 
-}
-
-func TestOne(t *testing.T) {
-	// Pruebas durante development - NO INCLUIR -
-	lista := TDALista.CrearListaEnlazada[int]()
-
-	lista.InsertarUltimo(1)
-	lista.InsertarUltimo(2)
-	lista.InsertarUltimo(3)
-	lista.InsertarUltimo(4)
-	lista.InsertarUltimo(8)
-	lista.InsertarUltimo(6)
-	lista.InsertarUltimo(8)
-	lista.InsertarPrimero(0)
-
-	for iter := lista.Iterador(); iter.HaySiguiente(); {
-		if iter.VerActual()%2 == 0 {
-			iter.Borrar()
-		} else {
-			iter.Siguiente()
-		}
-	}
-	lista.Iterar(func(valor int) bool {
-		fmt.Println(valor)
-		return true
-	})
-}
-
-func TestTwo(t *testing.T) {
-	lista := TDALista.CrearListaEnlazada[int]()
-	lista.InsertarPrimero(1)
-	iter := lista.Iterador()
-
-	iter.Insertar(2)
-
-	lista.Iterar(func(valor int) bool {
-		fmt.Println(valor)
-		return true
-	})
 }
