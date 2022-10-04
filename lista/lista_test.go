@@ -2,7 +2,7 @@ package lista_test
 
 import (
 	"github.com/stretchr/testify/require"
-	TDALista "lista/lista"
+	TDALista "team/lista"
 	"testing"
 )
 
