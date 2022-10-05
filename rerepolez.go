@@ -2,9 +2,15 @@ package main
 
 import (
 	"fmt"
-	a "rerepolez/votos"
+	"os"
+	PA "rerepolez/procesarArchivos"
 )
 
+var ARGS = os.Args[1:]
+
+// go build ~ ./rerepolez <archivo partidos> <archivo padron>
+
 func main() {
-	fmt.Println(a.LISTA_IMPUGNA)
+	arr1, arr2 := PA.ProcesarArchivos(ARGS)
+	fmt.Println(arr1, arr2)
 }
