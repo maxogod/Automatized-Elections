@@ -1,4 +1,4 @@
-package procesarArchivos
+package procesarDatos
 
 import (
 	"bufio"
@@ -29,7 +29,7 @@ func procesarPartidos(archivoNombre string) []votos.Partido {
 	return partidos
 }
 
-func procesarPadron(archivoNombre string) []int {
+func procesarPadron(archivoNombre string) []votos.Votante {
 	archivo, err := os.Open(archivoNombre)
 	if err != nil {
 		error_ := new(errores.ErrorLeerArchivo)
@@ -37,16 +37,17 @@ func procesarPadron(archivoNombre string) []int {
 	}
 	defer archivo.Close()
 
-	dnis := make([]int, 0)
+	votantes := make([]votos.Votante, 0)
 	s := bufio.NewScanner(archivo)
 	for s.Scan() {
 		padron, _ := strconv.Atoi(s.Text())
-		dnis = append(dnis, padron)
+		nuevoVotante := votos.CrearVotante(padron)
+		votantes = append(votantes, nuevoVotante)
 	}
-	return dnis
+	return votantes
 }
 
-func ProcesarArchivos(args []string) ([]votos.Partido, []int) {
+func ProcesarArchivos(args []string) ([]votos.Partido, []votos.Votante) {
 	if len(args) != 2 {
 		err := new(errores.ErrorLeerArchivo)
 		panic(err.Error())

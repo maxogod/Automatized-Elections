@@ -32,7 +32,7 @@ type Votante interface {
 
 	//Votar asenta la alternativa elegida en el tipo de voto indicado. En caso que el votante ya hubiera terminado
 	//anteriormente de votar, devolverá el error correspondiente. Sino, nil.
-	Votar(tipo TipoVoto, alternativa int) error
+	Votar(tipo TipoVoto, alternativa int, lenPartidos int) error
 
 	//Deshacer deshace la última operación realizada. Se tiene que poder deshacer hasta el estado inicial del voto
 	//(equivalente a un voto completamente en blanco). En caso que efectivamente haya habido alguna acción para
