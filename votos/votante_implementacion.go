@@ -15,6 +15,7 @@ type votanteImplementacion struct {
 func CrearVotante(dni int) Votante {
 	votante := new(votanteImplementacion)
 	votante.dni = dni
+	votante.pilaDeVotos = pila.CrearPilaDinamica[Voto]()
 	return votante
 }
 
