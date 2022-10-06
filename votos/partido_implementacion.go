@@ -1,5 +1,7 @@
 package votos
 
+import "fmt"
+
 type partidoImplementacion struct {
 	nombre      string
 	candidatos  [CANT_VOTACION]string
@@ -27,7 +29,8 @@ func (partido *partidoImplementacion) VotadoPara(tipo TipoVoto) {
 }
 
 func (partido partidoImplementacion) ObtenerResultado(tipo TipoVoto) string {
-	return ""
+	return fmt.Sprintf("%s - %s: %d votos", partido.nombre, partido.candidatos[tipo], partido.numeroVotos[tipo])
+	// <nombre del partido 1> - Postulante: X votos
 }
 
 func (blanco *partidoEnBlanco) VotadoPara(tipo TipoVoto) {
@@ -35,5 +38,5 @@ func (blanco *partidoEnBlanco) VotadoPara(tipo TipoVoto) {
 }
 
 func (blanco partidoEnBlanco) ObtenerResultado(tipo TipoVoto) string {
-	return ""
+	return fmt.Sprintf("Votos en Blanco: &d votos ", blanco.votosBlancos[tipo])
 }
