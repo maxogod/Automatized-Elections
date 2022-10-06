@@ -4,11 +4,12 @@ import (
 	"bufio"
 	"os"
 	"rerepolez/errores"
+	"rerepolez/votos"
 	"strconv"
 	"strings"
 )
 
-func procesarPartidos(archivoNombre string) [][]string {
+func procesarPartidos(archivoNombre string) []votos.Partido {
 	archivo, err := os.Open(archivoNombre)
 	if err != nil {
 		error_ := new(errores.ErrorLeerArchivo)
@@ -16,12 +17,16 @@ func procesarPartidos(archivoNombre string) [][]string {
 	}
 	defer archivo.Close()
 
-	arr := make([][]string, 0)
+	const NOMBRE_PARTIDO_POS = 0
+	partidos := []votos.Partido{votos.CrearVotosEnBlanco()} // Inicializado con el partido en blanco en pos 0
 	s := bufio.NewScanner(archivo)
 	for s.Scan() {
-		arr = append(arr, strings.Split(strings.TrimSuffix(s.Text(), "\n"), ","))
+		linea := strings.Split(strings.TrimSuffix(s.Text(), "\n"), ",")
+		nombrePartido := linea[NOMBRE_PARTIDO_POS]
+		candidatos := [votos.CANT_VOTACION]string{linea[votos.PRESIDENTE+1], linea[votos.GOBERNADOR+1], linea[votos.INTENDENTE+1]}
+		partidos = append(partidos, votos.CrearPartido(nombrePartido, candidatos))
 	}
-	return arr
+	return partidos
 }
 
 func procesarPadron(archivoNombre string) []int {
@@ -32,16 +37,16 @@ func procesarPadron(archivoNombre string) []int {
 	}
 	defer archivo.Close()
 
-	arr := make([]int, 0)
+	dnis := make([]int, 0)
 	s := bufio.NewScanner(archivo)
 	for s.Scan() {
 		padron, _ := strconv.Atoi(s.Text())
-		arr = append(arr, padron)
+		dnis = append(dnis, padron)
 	}
-	return arr
+	return dnis
 }
 
-func ProcesarArchivos(args []string) ([][]string, []int) {
+func ProcesarArchivos(args []string) ([]votos.Partido, []int) {
 	if len(args) != 2 {
 		err := new(errores.ErrorLeerArchivo)
 		panic(err.Error())
@@ -50,6 +55,7 @@ func ProcesarArchivos(args []string) ([][]string, []int) {
 		PARTIDOS_POS = 0
 		PADRON_POS   = 1
 	)
+
 	partidos := procesarPartidos(args[PARTIDOS_POS])
 	padron := procesarPadron(args[PADRON_POS])
 	return partidos, padron

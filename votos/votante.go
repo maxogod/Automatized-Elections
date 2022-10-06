@@ -13,6 +13,8 @@ const (
 	LISTA_IMPUGNA = 0
 )
 
+var cant_impugnados = 0
+
 // Voto tiene guardada la información de un voto emitido, por cada tipo de voto posible.
 // Por ejemplo, en la posición GOBERNADOR, tendrá guardada la alternativa a Gobernador.
 // Si vale 0, es un voto en blanco.
