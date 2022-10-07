@@ -2,7 +2,7 @@ package lista_test
 
 import (
 	"github.com/stretchr/testify/require"
-	TDALista "lista/lista"
+	TDALista "rerepolez/lista"
 	"testing"
 )
 
@@ -108,8 +108,163 @@ func TestIteradorInterno(t *testing.T) {
 	require.EqualValues(t, 1, *ptrUltimoValorVisto)
 }
 
-func TestIteradorExterno(t *testing.T) {
-	t.Log("Pruebas de iterador externo")
+// Pruebas de Iteradores Externos
+
+func TestListaVaciaConIterador(t *testing.T) {
+	t.Log("aseguramos de que nusetros iteradores lanzan exceptiones")
+	lista := TDALista.CrearListaEnlazada[int]()
+	iter := lista.Iterador()
+
+	require.PanicsWithValue(t, "El iterador termino de iterar", func() { iter.Borrar() })
+	require.PanicsWithValue(t, "El iterador termino de iterar", func() { iter.VerActual() })
+	require.PanicsWithValue(t, "El iterador termino de iterar", func() { iter.Siguiente() })
+}
+
+func TestInsertarAlprincipio(t *testing.T) {
+	t.Log("Insertamos estando en el principio con iterador y checkeamos que haya sido efectivamente al principio")
+
+	lista := TDALista.CrearListaEnlazada[int]()
+	lista.InsertarPrimero(2)
+
+	iter := lista.Iterador()
+	iter.Insertar(1)
+	iter.Insertar(0)
+
+	i := 0
+	lista.Iterar(func(valor int) bool {
+		require.Equal(t, i, valor)
+		i++
+		return true
+	})
+
+}
+
+func TestInsertarAlFinal(t *testing.T) {
+	t.Log("Insertamos estando en el final con iterador y checkeamos que haya sido efectivamente al final")
+
+	lista := TDALista.CrearListaEnlazada[int]()
+	lista.InsertarPrimero(2)
+
+	iter := lista.Iterador()
+	iter.Siguiente() // Estamos parados en nil (osea el final)
+	iter.Insertar(1)
+	iter.Siguiente()
+	iter.Insertar(0)
+
+	i := 2
+	lista.Iterar(func(valor int) bool {
+		require.Equal(t, i, valor)
+		i--
+		return true
+	})
+
+}
+
+func TestInsertarEnMedio(t *testing.T) {
+	t.Log("Insertamos valores en el medio de una lista con un iterador externo")
+	const (
+		_DATO_NUEVO_INSERTADO = 3
+	)
+	lista := TDALista.CrearListaEnlazada[int]()
+	lista.InsertarPrimero(4)
+	lista.InsertarPrimero(2)
+	lista.InsertarPrimero(1)
+
+	iter := lista.Iterador()
+	iter.Siguiente()
+	iter.Siguiente()
+
+	iter.Insertar(_DATO_NUEVO_INSERTADO)
+	require.False(t, lista.EstaVacia())
+
+	i := 1
+	lista.Iterar(func(valor int) bool {
+		require.Equal(t, i, valor)
+		i++
+		return true
+	})
+
+}
+
+func TestBorrarPrimero(t *testing.T) {
+	t.Log("Borramos cuando se crea el iterador (osea al principio)")
+	lista := TDALista.CrearListaEnlazada[int]()
+	lista.InsertarPrimero(1)
+	lista.InsertarPrimero(2)
+
+	iter := lista.Iterador()
+	require.EqualValues(t, 2, iter.Borrar())
+	require.EqualValues(t, 1, iter.VerActual())
+	require.EqualValues(t, lista.VerPrimero(), lista.VerUltimo())
+}
+
+func TestBorrarUltimo(t *testing.T) {
+	t.Log("Borramos el ultimo y nos fijamos que efectivamente se haya borrado")
+	const (
+		UlIMO       = 6
+		ANTE_ULTIMO = 5
+	)
+	lista := TDALista.CrearListaEnlazada[int]()
+	lista.InsertarPrimero(3)
+	lista.InsertarPrimero(2)
+	lista.InsertarPrimero(1)
+	lista.InsertarUltimo(4)
+	lista.InsertarUltimo(5)
+	lista.InsertarUltimo(6)
+
+	iter := lista.Iterador()
+	for i := 1; i < UlIMO; i++ {
+		require.Equal(t, i, iter.Siguiente())
+	}
+
+	require.Equal(t, UlIMO, iter.VerActual())
+	require.Equal(t, UlIMO, iter.Borrar())
+	require.Equal(t, ANTE_ULTIMO, lista.VerUltimo())
+}
+
+func TestBorrarEnMedio(t *testing.T) {
+	t.Log("Borramos algunos datos en el medio de la lista utilizando un iterador externo")
+	lista := TDALista.CrearListaEnlazada[int]()
+	lista.InsertarPrimero(3)
+	lista.InsertarPrimero(2)
+	lista.InsertarPrimero(1)
+
+	iter := lista.Iterador()
+	require.EqualValues(t, 1, iter.Siguiente())
+	require.EqualValues(t, 2, iter.Borrar())
+	require.EqualValues(t, 3, iter.VerActual())
+
+	// Veo que efectivamente la lista sea [1 3]
+	i := 1
+	lista.Iterar(func(valor int) bool {
+		require.EqualValues(t, i, valor)
+		i += 2
+		return true
+	})
+}
+
+func TestBorrarOrdenadamente(t *testing.T) {
+	t.Log("Borramos ordenadamente todo los datos de una lista utilizando un iterador externo ")
+	const LISTA_LARGO = 6
+	lista := TDALista.CrearListaEnlazada[int]()
+	lista.InsertarPrimero(3)
+	lista.InsertarPrimero(2)
+	lista.InsertarPrimero(1)
+	lista.InsertarUltimo(4)
+	lista.InsertarUltimo(5)
+	lista.InsertarUltimo(6)
+
+	iter := lista.Iterador()
+	for i := 1; i < LISTA_LARGO+1; i++ {
+		require.True(t, iter.HaySiguiente())
+		require.Equal(t, i, iter.Borrar())
+	}
+	require.True(t, lista.EstaVacia())
+	require.False(t, iter.HaySiguiente())
+}
+
+func TestDatosDeLista(t *testing.T) {
+	t.Log("Revisamos todo los datos de la lista utilizando un iterador externo")
 	const LISTA_LARGO = 6
 	lista := TDALista.CrearListaEnlazada[int]()
 	lista.InsertarPrimero(3)
@@ -127,50 +282,4 @@ func TestIteradorExterno(t *testing.T) {
 		require.Equal(t, i, iter.Siguiente())
 	}
 	require.False(t, iter.HaySiguiente())
-}
-
-func TestBorrarOrdenadamenteIteradoresExternos(t *testing.T) {
-	const LISTA_LARGO = 6
-	lista := TDALista.CrearListaEnlazada[int]()
-	lista.InsertarPrimero(3)
-	lista.InsertarPrimero(2)
-	lista.InsertarPrimero(1)
-	lista.InsertarUltimo(4)
-	lista.InsertarUltimo(5)
-	lista.InsertarUltimo(6)
-
-	iter := lista.Iterador()
-
-	for i := 1; i < LISTA_LARGO+1; i++ {
-		require.True(t, iter.HaySiguiente())
-		require.Equal(t, i, iter.Borrar())
-	}
-	require.True(t, lista.EstaVacia())
-	require.False(t, iter.HaySiguiente())
-}
-
-func TestBorrarEnMedioDeListaConIteradoresExternos(t *testing.T) {
-	const (
-		NODO_A_BORRAR        = 4
-		SIGUIENTE_A_BORRAR   = NODO_A_BORRAR + 1
-		SIGUIENTE_AL_BORRADO = SIGUIENTE_A_BORRAR + 1
-	)
-
-	lista := TDALista.CrearListaEnlazada[int]()
-	lista.InsertarPrimero(3)
-	lista.InsertarPrimero(2)
-	lista.InsertarPrimero(1)
-
-	lista.InsertarUltimo(4)
-	lista.InsertarUltimo(5)
-	lista.InsertarUltimo(6)
-
-	iter := lista.Iterador()
-	for i := 1; i < NODO_A_BORRAR; i++ {
-		require.Equal(t, i, iter.Siguiente())
-	}
-	require.Equal(t, NODO_A_BORRAR, iter.VerActual())
-	require.Equal(t, NODO_A_BORRAR, iter.Borrar())
-	require.Equal(t, SIGUIENTE_A_BORRAR, iter.Borrar())
-	require.Equal(t, SIGUIENTE_AL_BORRADO, iter.VerActual())
 }

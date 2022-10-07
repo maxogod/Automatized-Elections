@@ -1,9 +1,8 @@
 package lista
 
 type nodo[T any] struct {
-	dato     T
-	proximo  *nodo[T]
-	anterior *nodo[T]
+	dato    T
+	proximo *nodo[T]
 }
 
 type listaEnlazada[T any] struct {
@@ -19,14 +18,14 @@ type iteradorListaEnlazada[T any] struct {
 
 // Metodos de listaEnlazada
 
-func (l *listaEnlazada[T]) crearNodo(nuevoDato T) *nodo[T] {
-	return &nodo[T]{dato: nuevoDato}
-}
-
 func (l *listaEnlazada[T]) errores() {
 	if l.EstaVacia() {
 		panic("La lista esta vacia")
 	}
+}
+
+func (l *listaEnlazada[T]) crearNodo(nuevoDato T) *nodo[T] {
+	return &nodo[T]{dato: nuevoDato}
 }
 
 func (l *listaEnlazada[T]) EstaVacia() bool {
@@ -36,14 +35,13 @@ func (l *listaEnlazada[T]) EstaVacia() bool {
 func (l *listaEnlazada[T]) InsertarPrimero(nuevoDato T) {
 	nuevoNodo := l.crearNodo(nuevoDato)
 
-	if l.primero == nil {
+	if l.EstaVacia() {
 		l.primero = nuevoNodo
 		l.ultimo = nuevoNodo
 	} else {
 		prox := l.primero
 		l.primero = nuevoNodo
 		l.primero.proximo = prox
-		l.primero.proximo.anterior = l.primero
 	}
 	l.largo++
 }
@@ -51,27 +49,27 @@ func (l *listaEnlazada[T]) InsertarPrimero(nuevoDato T) {
 func (l *listaEnlazada[T]) InsertarUltimo(nuevoDato T) {
 	nuevoNodo := l.crearNodo(nuevoDato)
 
-	if l.ultimo == nil {
+	if l.EstaVacia() {
 		l.primero = nuevoNodo
 		l.ultimo = nuevoNodo
 	} else {
 		ant := l.ultimo
 		l.ultimo = nuevoNodo
-		l.ultimo.anterior = ant
-		l.ultimo.anterior.proximo = l.ultimo
+		ant.proximo = l.ultimo
 	}
 	l.largo++
 }
 
 func (l *listaEnlazada[T]) BorrarPrimero() T {
 	l.errores()
+	const _LARGO_MIN = 1
 	dato := l.primero.dato
-	if l.largo == 1 {
+
+	if l.largo == _LARGO_MIN {
 		l.primero = nil
 		l.ultimo = nil
 	} else {
 		l.primero = l.primero.proximo
-		l.primero.anterior = l.primero.anterior.anterior
 	}
 	l.largo--
 
@@ -92,7 +90,7 @@ func (l *listaEnlazada[T]) Largo() int {
 	return l.largo
 }
 
-// Iterar - Iterador Interno
+// Iterar - iterador Interno
 func (l listaEnlazada[T]) Iterar(visitar func(T) bool) {
 	for l.primero != nil && visitar(l.primero.dato) {
 		l.primero = l.primero.proximo
@@ -109,6 +107,12 @@ func (l *listaEnlazada[T]) Iterador() IteradorLista[T] {
 
 //Metodos de iteradorListaEnlazada (EXTERNO)
 
+func (i *iteradorListaEnlazada[T]) errorDeIterador() {
+	if !i.HaySiguiente() {
+		panic("El iterador termino de iterar")
+	}
+}
+
 func (i *iteradorListaEnlazada[T]) VerActual() T {
 	i.errorDeIterador()
 	return i.posicionActual.dato
@@ -116,12 +120,6 @@ func (i *iteradorListaEnlazada[T]) VerActual() T {
 
 func (i *iteradorListaEnlazada[T]) HaySiguiente() bool {
 	return i.posicionActual != nil
-}
-
-func (i *iteradorListaEnlazada[T]) errorDeIterador() {
-	if !i.HaySiguiente() {
-		panic("El iterador termino de iterar")
-	}
 }
 
 func (i *iteradorListaEnlazada[T]) Siguiente() T {
@@ -134,14 +132,19 @@ func (i *iteradorListaEnlazada[T]) Siguiente() T {
 func (i *iteradorListaEnlazada[T]) Insertar(nuevoDato T) {
 
 	if i.lista.EstaVacia() {
+		// Vacia
 		i.lista.InsertarPrimero(nuevoDato)
 		i.posicionActual = i.lista.primero
 	} else if i.posicionActual == nil {
-		// Esta en el final
+		// Final
 		i.lista.InsertarUltimo(nuevoDato)
 		i.posicionActual = i.lista.ultimo
+	} else if i.posicionActual.anterior == nil {
+		// Principio
+		i.lista.InsertarPrimero(nuevoDato)
+		i.posicionActual = i.lista.primero
 	} else {
-		// En el medio
+		// Medio
 		nuevoNodo := i.lista.crearNodo(nuevoDato)
 
 		prox := i.posicionActual
@@ -159,19 +162,21 @@ func (i *iteradorListaEnlazada[T]) Borrar() T {
 	i.lista.errores()
 	dato := i.posicionActual.dato
 
-	if i.posicionActual.proximo == nil {
-		i.lista.primero = nil
-		i.lista.ultimo = nil
-		i.posicionActual = nil
-		i.lista.largo--
-	} else if i.posicionActual.anterior == nil {
+	if i.posicionActual.anterior == nil {
+		// Principio
 		i.lista.BorrarPrimero()
 		i.Siguiente()
+	} else if i.posicionActual.proximo == nil {
+		// Final
+		i.posicionActual.anterior.proximo = nil
+		i.lista.ultimo = i.lista.ultimo.anterior
+		i.posicionActual = nil
+		i.lista.largo--
 	} else {
-		anterior := i.posicionActual.anterior
-		//i.posicionActual.anterior.proximo = proximo
+		// Medio
+		i.posicionActual.anterior.proximo = i.posicionActual.proximo
+		i.posicionActual.proximo.anterior = i.posicionActual.anterior
 		i.posicionActual = i.posicionActual.proximo
-		i.posicionActual.anterior = anterior
 		i.lista.largo--
 	}
 	return dato
