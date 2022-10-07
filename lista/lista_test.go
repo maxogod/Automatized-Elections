@@ -201,7 +201,7 @@ func TestBorrarPrimero(t *testing.T) {
 func TestBorrarUltimo(t *testing.T) {
 	t.Log("Borramos el ultimo y nos fijamos que efectivamente se haya borrado")
 	const (
-		UlIMO       = 6
+		UlTIMO      = 6
 		ANTE_ULTIMO = 5
 	)
 	lista := TDALista.CrearListaEnlazada[int]()
@@ -213,12 +213,12 @@ func TestBorrarUltimo(t *testing.T) {
 	lista.InsertarUltimo(6)
 
 	iter := lista.Iterador()
-	for i := 1; i < UlIMO; i++ {
+	for i := 1; i < UlTIMO; i++ {
 		require.Equal(t, i, iter.Siguiente())
 	}
 
-	require.Equal(t, UlIMO, iter.VerActual())
-	require.Equal(t, UlIMO, iter.Borrar())
+	require.Equal(t, UlTIMO, iter.VerActual())
+	require.Equal(t, UlTIMO, iter.Borrar())
 	require.Equal(t, ANTE_ULTIMO, lista.VerUltimo())
 }
 
