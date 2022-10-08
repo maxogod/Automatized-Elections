@@ -4,8 +4,12 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	COLA "rerepolez/cola"
 	"rerepolez/errores"
 	PA "rerepolez/procesarDatos"
+	V "rerepolez/votos"
+	"strconv"
+	"strings"
 )
 
 var (
@@ -14,27 +18,33 @@ var (
 
 // go build ~ ./rerepolez <archivo partidos> <archivo padron>
 
+// go build rerepolez
+// ./rerepolez tests/01_partidos tests/02_padron
+
 func main() {
 	partidos, padron := PA.ProcesarArchivos(ARGS)
-	fmt.Println(partidos, padron)
+	colaVotantes := COLA.CrearColaEnlazada[V.Votante]()
+	fmt.Println(partidos)
+	fmt.Println(padron)
+
 	scan := bufio.NewScanner(os.Stdin)
+
 	for scan.Scan() {
-		switch scan.Text() {
+		entrada := strings.Split(scan.Text(), " ")
+
+		commndo := entrada[0]
+
+		switch commndo {
 		case "ingresar":
-			fmt.Println("hallo")
+
+			dni, _ := strconv.Atoi(entrada[1])
+			colaVotantes.Encolar(V.CrearVotante(dni))
 			break
 		case "votar":
-			fmt.Println("a")
-			break
-		case "deshacer":
-			fmt.Println("b")
-			break
-		case "fin-votar":
-			fmt.Println("bye")
+
 			break
 		default:
-			fmt.Println(new(errores.ErrorParametros))
+			panic(new(errores.ErrorParametros).Error())
 		}
 	}
-	fmt.Println("resultados")
 }
