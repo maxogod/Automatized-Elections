@@ -3,6 +3,7 @@ package votos
 import (
 	"rerepolez/errores"
 	"rerepolez/pila"
+	"strings"
 )
 
 type votanteImplementacion struct {
@@ -61,6 +62,20 @@ func (votante *votanteImplementacion) FinVoto() (Voto, error) {
 
 }
 
+
+func ConvertirTipoVoto(candidato string) TipoVoto {
+	switch strings.ToUpper(candidato) {
+	case "PRESIDENTE":
+		return PRESIDENTE
+	case "GOBERNADOR":
+		return GOBERNADOR
+	case "INTENDENTE":
+		return INTENDENTE
+	default:
+		panic(new(errores.ErrorTipoVoto).Error())
+	}
+	return NONE
+  
 func CheckearDniValido(dni int, padron []Votante) error {
 	if dni < 0 || dni > 60000000 {
 		return new(errores.DNIError)

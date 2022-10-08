@@ -41,6 +41,14 @@ func main() {
 			colaVotantes.Encolar(V.CrearVotante(dni))
 			break
 		case "votar":
+			//tipoVoto := entrada[1]
+			//nroLista, _ := strconv.Atoi(entrada[2])
+
+			break
+		case "deshacer":
+
+			break
+		case "fin-votar":
 
 			break
 		default:

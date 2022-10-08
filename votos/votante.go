@@ -6,6 +6,7 @@ const (
 	PRESIDENTE TipoVoto = iota
 	GOBERNADOR
 	INTENDENTE
+	NONE
 )
 
 const (
