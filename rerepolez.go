@@ -36,8 +36,8 @@ func main() {
 
 		switch commndo {
 		case "ingresar":
-
 			dni, _ := strconv.Atoi(entrada[1])
+			errorDni := V.CheckearDniValido(dni, padron)
 			colaVotantes.Encolar(V.CrearVotante(dni))
 			break
 		case "votar":
