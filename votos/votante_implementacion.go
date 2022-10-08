@@ -62,6 +62,7 @@ func (votante *votanteImplementacion) FinVoto() (Voto, error) {
 
 }
 
+
 func ConvertirTipoVoto(candidato string) TipoVoto {
 	switch strings.ToUpper(candidato) {
 	case "PRESIDENTE":
@@ -74,4 +75,15 @@ func ConvertirTipoVoto(candidato string) TipoVoto {
 		panic(new(errores.ErrorTipoVoto).Error())
 	}
 	return NONE
+  
+func CheckearDniValido(dni int, padron []Votante) error {
+	if dni < 0 || dni > 60000000 {
+		return new(errores.DNIError)
+	}
+	for _, documento := range padron {
+		if dni == documento.LeerDNI() {
+			return nil
+		}
+	}
+	return new(errores.DNIFueraPadron)
 }
