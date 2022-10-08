@@ -38,7 +38,13 @@ func main() {
 		case "ingresar":
 			dni, _ := strconv.Atoi(entrada[1])
 			errorDni := V.CheckearDniValido(dni, padron)
-			colaVotantes.Encolar(V.CrearVotante(dni))
+
+			if errorDni == nil {
+				colaVotantes.Encolar(V.CrearVotante(dni))
+				fmt.Println("OK")
+			} else {
+				fmt.Println(errorDni)
+			}
 			break
 		case "votar":
 			//tipoVoto := entrada[1]
@@ -46,13 +52,22 @@ func main() {
 
 			break
 		case "deshacer":
-
+			errorDeshacer := (colaVotantes.VerPrimero()).Deshacer()
+			if errorDeshacer != nil {
+				println(errorDeshacer)
+				// TODO no c pq printea un pos de memoria en vez del error (esta hecha igual a ~ingresar~)
+			}
 			break
 		case "fin-votar":
-
+			voto, err := colaVotantes.Desencolar().FinVoto()
+			if err != nil {
+				fmt.Println(err)
+			}
+			voto.Impugnado = true // Borrar linea, es solo para usar voto y compilar.
+			// TODO hacer algo con voto
 			break
 		default:
-			panic(new(errores.ErrorParametros).Error())
+			fmt.Println(new(errores.ErrorParametros))
 		}
 	}
 }
