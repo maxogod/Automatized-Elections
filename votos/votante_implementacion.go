@@ -38,21 +38,22 @@ func (votante *votanteImplementacion) Votar(tipo TipoVoto, alternativa, lenParti
 
 func (votante *votanteImplementacion) Deshacer() error {
 	if votante.pilaDeVotos.EstaVacia() {
-		return new(errores.ErrorNoHayVotosAnteriores)
+		return new(errores.DNIFueraPadron)
 	}
 	votante.pilaDeVotos.Desapilar()
 	if votante.pilaDeVotos.EstaVacia() {
 		const VALOR_BASE = 0
 		votante.voto.Impugnado = false
 		votante.voto.VotoPorTipo = [CANT_VOTACION]int{VALOR_BASE, VALOR_BASE, VALOR_BASE}
+	} else {
+		votante.voto = votante.pilaDeVotos.VerTope()
 	}
-	votante.voto = votante.pilaDeVotos.VerTope()
 	return nil
 }
 
 func (votante *votanteImplementacion) FinVoto() (Voto, error) {
 	if votante.estadoVoto {
-		err := new(errores.ErrorVotanteFraudulento)
+		err := errores.ErrorVotanteFraudulento{Dni: votante.dni}
 		return Voto{}, err
 
 	} else {
@@ -61,7 +62,6 @@ func (votante *votanteImplementacion) FinVoto() (Voto, error) {
 	}
 
 }
-
 
 func ConvertirTipoVoto(candidato string) TipoVoto {
 	switch strings.ToUpper(candidato) {
@@ -75,7 +75,8 @@ func ConvertirTipoVoto(candidato string) TipoVoto {
 		panic(new(errores.ErrorTipoVoto).Error())
 	}
 	return NONE
-  
+}
+
 func CheckearDniValido(dni int, padron []Votante) error {
 	if dni < 0 || dni > 60000000 {
 		return new(errores.DNIError)
