@@ -1,6 +1,10 @@
 package votos
 
-// Partido modela un partido político, con sus alternativas para cada uno de los tipos de votaciones
+var votosImpugnados int
+
+const PARTIDO_BLANCO = 0
+
+//Partido modela un partido político, con sus alternativas para cada uno de los tipos de votaciones
 type Partido interface {
 
 	//VotadoPara indica que este Partido ha recibido un voto para el TipoVoto indicado. Felicitaciones!
