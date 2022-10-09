@@ -42,55 +42,57 @@ func main() {
 
 			if errorDni == nil {
 				colaVotantes.Encolar(V.CrearVotante(dni))
-				OK()
-			} else {
-				fmt.Println(errorDni)
 			}
+			mostrarError(errorDni, "OK")
 			break
 		case "votar":
-			tipoVoto := V.ConvertirTipoVoto(entrada[1])
+			tipoVoto, errConversion := V.ConvertirTipoVoto(entrada[1])
+			mostrarError(errConversion, "")
 			nroLista, _ := strconv.Atoi(entrada[2])
+
+			errorFilaVacia(colaVotantes)
 			votanteActual := colaVotantes.VerPrimero()
-			err := votanteActual.Votar(tipoVoto, nroLista, len(partidos))
-			if err != nil {
-				fmt.Println(err)
-			} else {
-				OK()
-			}
+			errAlternativa := votanteActual.Votar(tipoVoto, nroLista, len(partidos))
+			mostrarError(errAlternativa, "OK")
 
 			break
 		case "deshacer":
-			err := (colaVotantes.VerPrimero()).Deshacer()
-			if err != nil {
-				fmt.Println(err)
-			} else {
-				OK()
-			}
+			errSinAnterior := (colaVotantes.VerPrimero()).Deshacer()
+			mostrarError(errSinAnterior, "OK")
 			break
 		case "fin-votar":
-			err := colaVotantes.Desencolar().FinVoto(&partidos)
-			if err != nil {
-				fmt.Println(err)
-			} else {
-				OK()
-			}
+			errorFilaVacia(colaVotantes)
+			errFraudulento := colaVotantes.Desencolar().FinVoto(&partidos)
+			mostrarError(errFraudulento, "OK")
 		default:
 			fmt.Println(new(errores.ErrorParametros))
 		}
-
 		fmt.Println("+++SALIDA+++")
 		salida(partidos)
-
 	}
 }
 
 func salida(partidos []V.Partido) {
-	for candidato := range CANDIDATOS {
+	for tipoVoto, candidato := range CANDIDATOS {
 		fmt.Printf("%s : \n", candidato)
-		//fmt.Printf("Votos en Blanco: %d Votos\n", partidos[])
+		fmt.Println(partidos[V.PARTIDO_BLANCO].ObtenerResultado(V.TipoVoto(tipoVoto)))
+		for _, partido := range partidos {
+			fmt.Println(partido.ObtenerResultado(V.TipoVoto(tipoVoto)))
+		}
+	}
+	fmt.Println(V.VotosImpugados())
+}
+
+func errorFilaVacia(cola COLA.Cola[V.Votante]) {
+	if cola.EstaVacia() {
+		fmt.Println(new(errores.FilaVacia))
 	}
 }
 
-func OK() {
-	fmt.Println("OK")
+func mostrarError(err error, alternativa string) {
+	if err != nil || alternativa == "" {
+		fmt.Println(err)
+	} else {
+		fmt.Println(alternativa)
+	}
 }
