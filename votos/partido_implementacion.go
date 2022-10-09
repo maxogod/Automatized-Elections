@@ -42,5 +42,5 @@ func (blanco partidoEnBlanco) ObtenerResultado(tipo TipoVoto) string {
 
 func VotosImpugnados() string {
 	//Votos impugnados: W votos
-	return fmt.Sprintf("Votos impugandos: %d votos", votosImpugnados)
+	return fmt.Sprintf("Votos impugnados: %d votos", votosImpugnados)
 }

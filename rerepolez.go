@@ -73,7 +73,6 @@ func main() {
 func salida(partidos []V.Partido) {
 	for tipoVoto, candidato := range CANDIDATOS {
 		fmt.Printf("%s : \n", candidato)
-		fmt.Println(partidos[V.PARTIDO_BLANCO].ObtenerResultado(V.TipoVoto(tipoVoto)))
 		for _, partido := range partidos {
 			fmt.Println(partido.ObtenerResultado(V.TipoVoto(tipoVoto)))
 		}
