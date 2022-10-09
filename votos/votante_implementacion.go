@@ -65,18 +65,17 @@ func (votante *votanteImplementacion) FinVoto(partido *[]Partido) error {
 	return nil
 }
 
-func ConvertirTipoVoto(candidato string) TipoVoto {
+func ConvertirTipoVoto(candidato string) (TipoVoto, error) {
 	switch strings.ToUpper(candidato) {
 	case "PRESIDENTE":
-		return PRESIDENTE
+		return PRESIDENTE, nil
 	case "GOBERNADOR":
-		return GOBERNADOR
+		return GOBERNADOR, nil
 	case "INTENDENTE":
-		return INTENDENTE
+		return INTENDENTE, nil
 	default:
-		panic(new(errores.ErrorTipoVoto).Error())
+		return TipoVoto(0), new(errores.ErrorTipoVoto)
 	}
-	return NONE
 }
 
 func CheckearDniValido(dni int, padron []Votante) error {
@@ -91,12 +90,9 @@ func CheckearDniValido(dni int, padron []Votante) error {
 	return new(errores.DNIFueraPadron)
 }
 
-
 func guardarVoto(votos [CANT_VOTACION]int, partidos *[]Partido) {
 	for tipo, alternativa := range votos {
 		partidoElegido := (*partidos)[alternativa]
 		partidoElegido.VotadoPara(TipoVoto(tipo))
 	}
-
-func guardarVoto(votos Voto, partidos *[]Partido) {
 }
