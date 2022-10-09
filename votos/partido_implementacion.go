@@ -2,6 +2,8 @@ package votos
 
 import "fmt"
 
+var votosImpugnados int
+
 type partidoImplementacion struct {
 	nombre      string
 	candidatos  [CANT_VOTACION]string
@@ -9,8 +11,7 @@ type partidoImplementacion struct {
 }
 
 type partidoEnBlanco struct {
-	votosBlancos    [CANT_VOTACION]int
-	votosImpugnados int
+	votosBlancos [CANT_VOTACION]int
 }
 
 func CrearPartido(nombre string, candidatos [CANT_VOTACION]string) Partido {

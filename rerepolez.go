@@ -86,9 +86,8 @@ func main() {
 func salida(partidos []V.Partido) {
 	for candidato := range CANDIDATOS {
 		fmt.Printf("%s : \n", candidato)
-
+		//fmt.Printf("Votos en Blanco: %d Votos\n", partidos[])
 	}
-
 }
 
 func OK() {
