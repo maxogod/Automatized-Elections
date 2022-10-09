@@ -44,7 +44,7 @@ func main() {
 				colaVotantes.Encolar(V.CrearVotante(dni))
 				OK()
 			} else {
-				panic(errorDni)
+				fmt.Println(errorDni)
 			}
 			break
 		case "votar":
@@ -77,6 +77,7 @@ func main() {
 		default:
 			fmt.Println(new(errores.ErrorParametros))
 		}
+
 		fmt.Println("+++SALIDA+++")
 		salida(partidos)
 
@@ -86,6 +87,7 @@ func main() {
 func salida(partidos []V.Partido) {
 	for candidato := range CANDIDATOS {
 		fmt.Printf("%s : \n", candidato)
+		//fmt.Printf("Votos en Blanco: %d Votos\n", partidos[])
 
 	}
 
