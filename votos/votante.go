@@ -44,5 +44,5 @@ type Votante interface {
 	//FinVoto termina el proceso de votación para este votante. En caso que el votante ya hubiera terminado
 	//anteriormente con el proceso de votación, devolverá el error correspondiente. Sino, el voto en el estado final
 	//obtenido de las diferentes aplicaciones de Votar y Deshacer.
-	FinVoto() (Voto, error)
+	FinVoto(*[]Partido) error
 }

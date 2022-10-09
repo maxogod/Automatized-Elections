@@ -29,6 +29,7 @@ func (votante *votanteImplementacion) Votar(tipo TipoVoto, alternativa, lenParti
 		return new(errores.ErrorAlternativaInvalida)
 	} else if alternativa == 0 {
 		votante.voto.Impugnado = true
+
 	} else {
 		votante.voto.VotoPorTipo[tipo] = alternativa
 	}
@@ -38,7 +39,7 @@ func (votante *votanteImplementacion) Votar(tipo TipoVoto, alternativa, lenParti
 
 func (votante *votanteImplementacion) Deshacer() error {
 	if votante.pilaDeVotos.EstaVacia() {
-		return new(errores.DNIFueraPadron)
+		return new(errores.ErrorNoHayVotosAnteriores)
 	}
 	votante.pilaDeVotos.Desapilar()
 	if votante.pilaDeVotos.EstaVacia() {
@@ -51,16 +52,14 @@ func (votante *votanteImplementacion) Deshacer() error {
 	return nil
 }
 
-func (votante *votanteImplementacion) FinVoto() (Voto, error) {
+func (votante *votanteImplementacion) FinVoto(partido *[]Partido) error {
 	if votante.estadoVoto {
 		err := errores.ErrorVotanteFraudulento{Dni: votante.dni}
-		return Voto{}, err
-
-	} else {
-		votante.estadoVoto = true
-		return votante.voto, nil
+		return err
 	}
-
+	votante.estadoVoto = true
+	guardarVoto(votante.pilaDeVotos.VerTope().VotoPorTipo, partido)
+	return nil
 }
 
 func ConvertirTipoVoto(candidato string) TipoVoto {
@@ -87,4 +86,14 @@ func CheckearDniValido(dni int, padron []Votante) error {
 		}
 	}
 	return new(errores.DNIFueraPadron)
+}
+
+func guardarVoto(votos [CANT_VOTACION]int, partidos *[]Partido) {
+	i := 0
+	for voto := range votos {
+		partidoElegido := (*partidos)[voto]
+		partidoElegido.VotadoPara(TipoVoto(i))
+		i++
+	}
+
 }
