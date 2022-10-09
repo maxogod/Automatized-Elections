@@ -3,18 +3,15 @@ package votos
 type TipoVoto int
 
 const (
-	PRESIDENTE TipoVoto = iota //0
-	GOBERNADOR                 //1
-	INTENDENTE                 //2
-	NONE
+	PRESIDENTE TipoVoto = iota
+	GOBERNADOR
+	INTENDENTE
 )
 
 const (
 	CANT_VOTACION = INTENDENTE + 1
 	LISTA_IMPUGNA = 0
 )
-
-var cant_impugnados = 0
 
 // Voto tiene guardada la información de un voto emitido, por cada tipo de voto posible.
 // Por ejemplo, en la posición GOBERNADOR, tendrá guardada la alternativa a Gobernador.
