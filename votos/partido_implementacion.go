@@ -39,3 +39,8 @@ func (blanco *partidoEnBlanco) VotadoPara(tipo TipoVoto) {
 func (blanco partidoEnBlanco) ObtenerResultado(tipo TipoVoto) string {
 	return fmt.Sprintf("Votos en Blanco: %d votos ", blanco.votosBlancos[tipo])
 }
+
+func VotosImpugnados() string {
+	//Votos impugnados: W votos
+	return fmt.Sprintf("Votos impugandos: %d votos", votosImpugnados)
+}

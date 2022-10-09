@@ -25,8 +25,6 @@ var (
 func main() {
 	partidos, padron := PA.ProcesarArchivos(ARGS)
 	colaVotantes := COLA.CrearColaEnlazada[V.Votante]()
-	fmt.Println(partidos)
-	fmt.Println(padron)
 
 	scan := bufio.NewScanner(os.Stdin)
 
@@ -67,9 +65,9 @@ func main() {
 		default:
 			fmt.Println(new(errores.ErrorParametros))
 		}
-		fmt.Println("+++SALIDA+++")
-		salida(partidos)
 	}
+	fmt.Println("+++SALIDA+++")
+	salida(partidos)
 }
 
 func salida(partidos []V.Partido) {
@@ -80,7 +78,7 @@ func salida(partidos []V.Partido) {
 			fmt.Println(partido.ObtenerResultado(V.TipoVoto(tipoVoto)))
 		}
 	}
-	fmt.Println(V.VotosImpugados())
+	fmt.Println(V.VotosImpugnados())
 }
 
 func errorFilaVacia(cola COLA.Cola[V.Votante]) {
