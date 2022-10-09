@@ -91,9 +91,12 @@ func CheckearDniValido(dni int, padron []Votante) error {
 	return new(errores.DNIFueraPadron)
 }
 
+
 func guardarVoto(votos [CANT_VOTACION]int, partidos *[]Partido) {
 	for tipo, alternativa := range votos {
 		partidoElegido := (*partidos)[alternativa]
 		partidoElegido.VotadoPara(TipoVoto(tipo))
 	}
+
+func guardarVoto(votos Voto, partidos *[]Partido) {
 }

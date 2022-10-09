@@ -25,6 +25,10 @@ func CrearVotosEnBlanco() Partido {
 	return new(partidoEnBlanco)
 }
 
+func (partido *partidoEnBlanco) SumarImpugnado() {
+	partido.votosImpugnados++
+}
+
 func (partido *partidoImplementacion) VotadoPara(tipo TipoVoto) {
 	partido.numeroVotos[tipo]++
 }
