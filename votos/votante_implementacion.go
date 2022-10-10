@@ -25,7 +25,7 @@ func (votante votanteImplementacion) LeerDNI() int {
 }
 
 func (votante *votanteImplementacion) Votar(tipo TipoVoto, alternativa, lenPartidos int) error {
-	if alternativa < 0 || alternativa > lenPartidos {
+	if alternativa < 0 || alternativa >= lenPartidos {
 		return new(errores.ErrorAlternativaInvalida)
 	} else if alternativa == 0 {
 		votante.voto.Impugnado = true

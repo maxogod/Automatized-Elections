@@ -48,7 +48,9 @@ func main() {
 				break
 			}
 			tipoVoto, errConversion := V.ConvertirTipoVoto(entrada[1])
-			mostrarError(errConversion, "")
+			if mostrarError(errConversion, "") {
+				break
+			}
 			nroLista, _ := strconv.Atoi(entrada[2])
 
 			votanteActual := colaVotantes.VerPrimero()
@@ -102,10 +104,12 @@ func votanteFradulento(yaVotaron []V.Votante, dni int) bool {
 	return false
 }
 
-func mostrarError(err error, alternativa string) {
+func mostrarError(err error, alternativa string) bool {
 	if err != nil {
 		fmt.Println(err)
+		return true
 	} else if alternativa != "" {
 		fmt.Println(alternativa)
 	}
+	return false
 }
