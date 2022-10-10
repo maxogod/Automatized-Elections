@@ -102,16 +102,6 @@ func salida(partidos []V.Partido) {
 	fmt.Println(V.VotosImpugnados())
 }
 
-func votanteFradulento(yaVotaron []V.Votante, dni int) bool {
-	for _, votante := range yaVotaron {
-		if dni == votante.LeerDNI() {
-			fmt.Println(errores.ErrorVotanteFraudulento{Dni: dni})
-			return true
-		}
-	}
-	return false
-}
-
 func mostrarError(err error, alternativa string) bool {
 	if err != nil {
 		fmt.Println(err)
