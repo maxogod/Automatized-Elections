@@ -19,8 +19,7 @@ var (
 
 func main() {
 	partidos, padron, errLectura := PA.ProcesarArchivos(ARGS)
-	if errLectura {
-		fmt.Println(new(errores.ErrorLeerArchivo))
+	if mostrarError(errLectura, "") {
 		return
 	}
 	colaVotantes := COLA.CrearColaEnlazada[V.Votante]()
@@ -51,10 +50,16 @@ func main() {
 			if mostrarError(errConversion, "") {
 				break
 			}
+			if !isNumeric(entrada[2]) {
+				break
+			}
 			nroLista, _ := strconv.Atoi(entrada[2])
 
 			votanteActual := colaVotantes.VerPrimero()
-			errAlternativa := votanteActual.Votar(tipoVoto, nroLista, len(partidos))
+			errAlternativa, fraudulento := votanteActual.Votar(tipoVoto, nroLista, len(partidos))
+			if fraudulento {
+				colaVotantes.Desencolar()
+			}
 			mostrarError(errAlternativa, "OK")
 
 			break
@@ -63,8 +68,11 @@ func main() {
 				fmt.Println(new(errores.FilaVacia))
 				break
 			}
-			errSinAnterior := (colaVotantes.VerPrimero()).Deshacer()
-			mostrarError(errSinAnterior, "OK")
+			errDeshacer, fraudulento := (colaVotantes.VerPrimero()).Deshacer()
+			if fraudulento {
+				colaVotantes.Desencolar()
+			}
+			mostrarError(errDeshacer, "OK")
 			break
 		case "fin-votar":
 			if colaVotantes.EstaVacia() {
@@ -112,4 +120,12 @@ func mostrarError(err error, alternativa string) bool {
 		fmt.Println(alternativa)
 	}
 	return false
+}
+
+func isNumeric(s string) bool {
+	_, err := strconv.ParseFloat(s, 64)
+	if err != nil {
+		fmt.Println(new(errores.ErrorAlternativaInvalida))
+	}
+	return err == nil
 }

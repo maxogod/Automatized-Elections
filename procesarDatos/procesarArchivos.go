@@ -3,6 +3,7 @@ package procesarDatos
 import (
 	"bufio"
 	"os"
+	"rerepolez/errores"
 	"rerepolez/votos"
 	"strconv"
 	"strings"
@@ -44,9 +45,9 @@ func procesarPadron(archivoNombre string) ([]votos.Votante, bool) {
 	return ordenarVotantes(votantes), false
 }
 
-func ProcesarArchivos(args []string) ([]votos.Partido, []votos.Votante, bool) {
+func ProcesarArchivos(args []string) ([]votos.Partido, []votos.Votante, error) {
 	if len(args) != 2 {
-		return nil, nil, true
+		return nil, nil, new(errores.ErrorParametros)
 	}
 	const (
 		PARTIDOS_POS = 0
@@ -54,6 +55,9 @@ func ProcesarArchivos(args []string) ([]votos.Partido, []votos.Votante, bool) {
 	)
 	partidos, errPartidos := procesarPartidos(args[PARTIDOS_POS])
 	padron, errPadron := procesarPadron(args[PADRON_POS])
+	if errPadron || errPartidos {
+		return nil, nil, new(errores.ErrorLeerArchivo)
+	}
 
-	return partidos, padron, errPadron || errPartidos
+	return partidos, padron, nil
 }

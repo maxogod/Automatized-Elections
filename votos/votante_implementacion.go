@@ -24,21 +24,27 @@ func (votante votanteImplementacion) LeerDNI() int {
 	return votante.dni
 }
 
-func (votante *votanteImplementacion) Votar(tipo TipoVoto, alternativa, lenPartidos int) error {
+func (votante *votanteImplementacion) Votar(tipo TipoVoto, alternativa, lenPartidos int) (error, bool) {
+	if votante.estadoVoto {
+		return errores.ErrorVotanteFraudulento{Dni: votante.dni}, true
+	}
 	if alternativa < 0 || alternativa >= lenPartidos {
-		return new(errores.ErrorAlternativaInvalida)
+		return new(errores.ErrorAlternativaInvalida), false
 	} else if alternativa == 0 {
 		votante.voto.Impugnado = true
 	} else {
 		votante.voto.VotoPorTipo[tipo] = alternativa
 	}
 	votante.pilaDeVotos.Apilar(votante.voto)
-	return nil
+	return nil, false
 }
 
-func (votante *votanteImplementacion) Deshacer() error {
+func (votante *votanteImplementacion) Deshacer() (error, bool) {
+	if votante.estadoVoto {
+		return errores.ErrorVotanteFraudulento{Dni: votante.dni}, true
+	}
 	if votante.pilaDeVotos.EstaVacia() {
-		return new(errores.ErrorNoHayVotosAnteriores)
+		return new(errores.ErrorNoHayVotosAnteriores), false
 	}
 	votante.pilaDeVotos.Desapilar()
 	if votante.pilaDeVotos.EstaVacia() {
@@ -48,7 +54,7 @@ func (votante *votanteImplementacion) Deshacer() error {
 	} else {
 		votante.voto = votante.pilaDeVotos.VerTope()
 	}
-	return nil
+	return nil, false
 }
 
 func (votante *votanteImplementacion) FinVoto(partido *[]Partido) error {
