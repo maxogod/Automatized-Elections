@@ -6,11 +6,10 @@ const (
 	PRESIDENTE TipoVoto = iota
 	GOBERNADOR
 	INTENDENTE
-)
-
-const (
+	NINGUNO       = -1
 	CANT_VOTACION = INTENDENTE + 1
-	LISTA_IMPUGNA = 0
+	IMPUGNADO     = 0
+	FRAUDULENTO   = true
 )
 
 // Voto tiene guardada la información de un voto emitido, por cada tipo de voto posible.
@@ -30,13 +29,15 @@ type Votante interface {
 
 	//Votar asenta la alternativa elegida en el tipo de voto indicado. En caso que el votante ya hubiera terminado
 	//anteriormente de votar, devolverá el error correspondiente. Sino, nil.
-	Votar(tipo TipoVoto, alternativa int, lenPartidos int) error
+	// Como segundo return devuelve true si el votante es fraudulento, en otro caso devuelve false
+	Votar(tipo TipoVoto, alternativa int, lenPartidos int) (error, bool)
 
 	//Deshacer deshace la última operación realizada. Se tiene que poder deshacer hasta el estado inicial del voto
 	//(equivalente a un voto completamente en blanco). En caso que efectivamente haya habido alguna acción para
 	//deshacer, devolverá nil. En caso de no haber acción par adeshacer, devolverá el error correspondiente.
 	//También puede devolver error en caso que el votante ya hubiera terminado antes su proceso de votación.
-	Deshacer() error
+	// Como segundo return devuelve true si el votante es fraudulento, en otro caso devuelve false
+	Deshacer() (error, bool)
 
 	//FinVoto termina el proceso de votación para este votante. En caso que el votante ya hubiera terminado
 	//anteriormente con el proceso de votación, devolverá el error correspondiente. Sino, el voto en el estado final

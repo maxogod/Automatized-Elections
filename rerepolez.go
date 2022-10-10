@@ -12,87 +12,97 @@ import (
 	"strings"
 )
 
-var (
-	ARGS       = os.Args[1:]
-	CANDIDATOS = [3]string{"Presidente", "Gobernador", "Intendente"}
+const (
+	COMANDO_INGRESADO = iota
+	PRIMER_PARAMETRO
+	SEGUNDO_PARAMETRO
+	OK        = "OK"
+	VACIO     = ""
+	SEPARADOR = " "
 )
 
-// go build ~ ./rerepolez <archivo partidos> <archivo padron>
-
-// go build rerepolez
-// ./rerepolez tests/01_partidos tests/02_padron
+var (
+	ARGS       = os.Args[PRIMER_PARAMETRO:]
+	CANDIDATOS = [V.CANT_VOTACION]string{"Presidente", "Gobernador", "Intendente"}
+)
 
 func main() {
 	partidos, padron, errLectura := PA.ProcesarArchivos(ARGS)
-	if errLectura {
-		fmt.Println(new(errores.ErrorLeerArchivo))
+	if mostrarError(errLectura, VACIO) {
 		return
 	}
 	colaVotantes := COLA.CrearColaEnlazada[V.Votante]()
-	yaVotaron := make([]V.Votante, 0)
 
 	scan := bufio.NewScanner(os.Stdin)
-
 	for scan.Scan() {
-		entrada := strings.Split(scan.Text(), " ")
+		entrada := strings.Split(scan.Text(), SEPARADOR)
+		comando := entrada[COMANDO_INGRESADO]
 
-		commndo := entrada[0]
-
-		switch commndo {
+		switch comando {
 		case "ingresar":
-			dni, _ := strconv.Atoi(entrada[1])
-			errorDni := V.CheckearDniValido(dni, padron)
-
+			dni, _ := strconv.Atoi(entrada[PRIMER_PARAMETRO])
+			indiceEnPadron, errorDni := V.CheckearDniValido(dni, padron)
 			if errorDni == nil {
-				if votanteFradulento(yaVotaron, dni) {
-					// TODO sacarlo de padron
-					break
-				}
-				votanteActual := V.CrearVotante(dni)
-				colaVotantes.Encolar(votanteActual)
-				yaVotaron = append(yaVotaron, votanteActual)
+				colaVotantes.Encolar(padron[indiceEnPadron])
 			}
-			mostrarError(errorDni, "OK")
+			mostrarError(errorDni, OK)
 			break
+
 		case "votar":
 			if colaVotantes.EstaVacia() {
 				fmt.Println(new(errores.FilaVacia))
 				break
 			}
-			tipoVoto, errConversion := V.ConvertirTipoVoto(entrada[1])
-			mostrarError(errConversion, "")
-			nroLista, _ := strconv.Atoi(entrada[2])
+			tipoVoto, errConversion := V.ConvertirTipoVoto(entrada[PRIMER_PARAMETRO])
+			if mostrarError(errConversion, VACIO) || !esNumerico(entrada[SEGUNDO_PARAMETRO]) {
+				break
+			}
+			nroLista, _ := strconv.Atoi(entrada[SEGUNDO_PARAMETRO])
 
 			votanteActual := colaVotantes.VerPrimero()
-			errAlternativa := votanteActual.Votar(tipoVoto, nroLista, len(partidos))
-			mostrarError(errAlternativa, "OK")
-
+			errAlternativa, fraudulento := votanteActual.Votar(tipoVoto, nroLista, len(partidos))
+			if fraudulento {
+				colaVotantes.Desencolar()
+			}
+			mostrarError(errAlternativa, OK)
 			break
+
 		case "deshacer":
 			if colaVotantes.EstaVacia() {
 				fmt.Println(new(errores.FilaVacia))
 				break
 			}
-			errSinAnterior := (colaVotantes.VerPrimero()).Deshacer()
-			mostrarError(errSinAnterior, "OK")
+			errDeshacer, fraudulento := (colaVotantes.VerPrimero()).Deshacer()
+			if fraudulento {
+				colaVotantes.Desencolar()
+			}
+			mostrarError(errDeshacer, OK)
 			break
+
 		case "fin-votar":
 			if colaVotantes.EstaVacia() {
 				fmt.Println(new(errores.FilaVacia))
 				break
 			}
 			errFraudulento := colaVotantes.Desencolar().FinVoto(&partidos)
-			mostrarError(errFraudulento, "OK")
+			mostrarError(errFraudulento, OK)
+
+		case "seAprueba?":
+			fmt.Println("Obvio papa promedio 10 :) xd")
+
 		default:
 			fmt.Println(new(errores.ErrorParametros))
 		}
+	}
+	if !colaVotantes.EstaVacia() {
+		fmt.Println(new(errores.ErrorCiudadanosSinVotar))
 	}
 	salida(partidos)
 }
 
 func salida(partidos []V.Partido) {
 	for tipoVoto, candidato := range CANDIDATOS {
-		fmt.Printf("%s : \n", candidato)
+		fmt.Printf("%s:\n", candidato)
 		for _, partido := range partidos {
 			fmt.Println(partido.ObtenerResultado(V.TipoVoto(tipoVoto)))
 		}
@@ -101,20 +111,21 @@ func salida(partidos []V.Partido) {
 	fmt.Println(V.VotosImpugnados())
 }
 
-func votanteFradulento(yaVotaron []V.Votante, dni int) bool {
-	for _, votante := range yaVotaron {
-		if dni == votante.LeerDNI() {
-			fmt.Println(errores.ErrorVotanteFraudulento{Dni: dni})
-			return true
-		}
+func mostrarError(err error, alternativa string) bool {
+	if err != nil {
+		fmt.Println(err)
+		return true
+	} else if alternativa != VACIO {
+		fmt.Println(alternativa)
 	}
 	return false
 }
 
-func mostrarError(err error, alternativa string) {
-	if err != nil || alternativa == "" {
-		fmt.Println(err)
-	} else {
-		fmt.Println(alternativa)
+func esNumerico(cadena string) bool {
+	const TAMANIO_BIT = 64
+	_, err := strconv.ParseFloat(cadena, TAMANIO_BIT)
+	if err != nil {
+		fmt.Println(new(errores.ErrorAlternativaInvalida))
 	}
+	return err == nil
 }
