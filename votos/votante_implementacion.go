@@ -87,20 +87,21 @@ func guardarVoto(votos [CANT_VOTACION]int, partidos *[]Partido) {
 	}
 }
 
-func CheckearDniValido(dni int, padron []Votante) error {
-	if dni <= 0 || dni > 60000000 {
-		return new(errores.DNIError)
-	} // O(1)
-	if buscarVotanteEnPadron(dni, 0, len(padron)-1, padron) {
-		return nil
+func CheckearDniValido(dni int, padron []Votante) (indiceEnPadron int, err error) {
+	if dni <= 0 {
+		return -1, new(errores.DNIError)
 	}
-	return new(errores.DNIFueraPadron)
+	indice := buscarVotanteEnPadron(dni, 0, len(padron), padron)
+	if indice != -1 {
+		return indice, nil
+	}
+	return indice, new(errores.DNIFueraPadron)
 }
 
-func buscarVotanteEnPadron(dni, ini, fin int, votantes []Votante) bool {
+func buscarVotanteEnPadron(dni, ini, fin int, votantes []Votante) int {
 	if ini > fin {
 		// No esta :(
-		return false
+		return -1
 	}
 	medio := (ini + fin) / 2
 	if votantes[medio].LeerDNI() > dni {
@@ -111,6 +112,6 @@ func buscarVotanteEnPadron(dni, ini, fin int, votantes []Votante) bool {
 		return buscarVotanteEnPadron(dni, medio+1, fin, votantes)
 	} else {
 		// Encontrado!
-		return true
+		return medio
 	}
 }
