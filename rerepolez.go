@@ -40,7 +40,7 @@ func main() {
 
 		switch commndo {
 		case "ingresar":
-			dni, _ := strconv.Atoi(entrada[1])
+			dni, _ := strconv.Atoi(entrada[1]) // O(n)
 			errorDni := V.CheckearDniValido(dni, padron)
 
 			if errorDni == nil {
@@ -87,12 +87,15 @@ func main() {
 			fmt.Println(new(errores.ErrorParametros))
 		}
 	}
+	if !colaVotantes.EstaVacia() {
+		fmt.Println(new(errores.ErrorCiudadanosSinVotar))
+	}
 	salida(partidos)
 }
 
 func salida(partidos []V.Partido) {
 	for tipoVoto, candidato := range CANDIDATOS {
-		fmt.Printf("%s : \n", candidato)
+		fmt.Printf("%s:\n", candidato)
 		for _, partido := range partidos {
 			fmt.Println(partido.ObtenerResultado(V.TipoVoto(tipoVoto)))
 		}

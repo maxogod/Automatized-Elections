@@ -80,21 +80,37 @@ func ConvertirTipoVoto(candidato string) (TipoVoto, error) {
 	}
 }
 
-func CheckearDniValido(dni int, padron []Votante) error {
-	if dni < 0 || dni > 60000000 {
-		return new(errores.DNIError)
-	}
-	for _, votante := range padron {
-		if dni == votante.LeerDNI() {
-			return nil
-		}
-	}
-	return new(errores.DNIFueraPadron)
-}
-
 func guardarVoto(votos [CANT_VOTACION]int, partidos *[]Partido) {
 	for tipo, alternativa := range votos {
 		partidoElegido := (*partidos)[alternativa]
 		partidoElegido.VotadoPara(TipoVoto(tipo))
+	}
+}
+
+func CheckearDniValido(dni int, padron []Votante) error {
+	if dni <= 0 || dni > 60000000 {
+		return new(errores.DNIError)
+	} // O(1)
+	if buscarVotanteEnPadron(dni, 0, len(padron)-1, padron) {
+		return nil
+	}
+	return new(errores.DNIFueraPadron)
+}
+
+func buscarVotanteEnPadron(dni, ini, fin int, votantes []Votante) bool {
+	if ini > fin {
+		// No esta :(
+		return false
+	}
+	medio := (ini + fin) / 2
+	if votantes[medio].LeerDNI() > dni {
+		// Miro izq
+		return buscarVotanteEnPadron(dni, ini, medio-1, votantes)
+	} else if votantes[medio].LeerDNI() < dni {
+		// Miro derecha
+		return buscarVotanteEnPadron(dni, medio+1, fin, votantes)
+	} else {
+		// Encontrado!
+		return true
 	}
 }

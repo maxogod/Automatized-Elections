@@ -41,7 +41,7 @@ func procesarPadron(archivoNombre string) ([]votos.Votante, bool) {
 		nuevoVotante := votos.CrearVotante(padron)
 		votantes = append(votantes, nuevoVotante)
 	}
-	return votantes, false
+	return ordenarVotantes(votantes), false
 }
 
 func ProcesarArchivos(args []string) ([]votos.Partido, []votos.Votante, bool) {
