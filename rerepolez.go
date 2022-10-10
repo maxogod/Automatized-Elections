@@ -50,16 +50,6 @@ func main() {
 			tipoVoto, errConversion := V.ConvertirTipoVoto(entrada[1])
 			if mostrarError(errConversion, "") {
 				break
-				break
-				break
-				break
-				break
-				break
-				break
-				break
-				break
-				break
-				break
 			}
 			nroLista, _ := strconv.Atoi(entrada[2])
 
