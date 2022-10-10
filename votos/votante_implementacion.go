@@ -58,6 +58,8 @@ func (votante *votanteImplementacion) FinVoto(partido *[]Partido) error {
 	}
 	if votante.voto.Impugnado {
 		votosImpugnados++
+	} else if votante.pilaDeVotos.EstaVacia() {
+		guardarVoto(votante.voto.VotoPorTipo, partido)
 	} else {
 		guardarVoto(votante.pilaDeVotos.VerTope().VotoPorTipo, partido)
 	}
@@ -82,8 +84,8 @@ func CheckearDniValido(dni int, padron []Votante) error {
 	if dni < 0 || dni > 60000000 {
 		return new(errores.DNIError)
 	}
-	for _, documento := range padron {
-		if dni == documento.LeerDNI() {
+	for _, votante := range padron {
+		if dni == votante.LeerDNI() {
 			return nil
 		}
 	}
