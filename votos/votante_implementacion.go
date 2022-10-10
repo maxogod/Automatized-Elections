@@ -3,6 +3,7 @@ package votos
 import (
 	"rerepolez/errores"
 	"rerepolez/pila"
+	"strings"
 )
 
 type votanteImplementacion struct {
@@ -44,19 +45,56 @@ func (votante *votanteImplementacion) Deshacer() error {
 		const VALOR_BASE = 0
 		votante.voto.Impugnado = false
 		votante.voto.VotoPorTipo = [CANT_VOTACION]int{VALOR_BASE, VALOR_BASE, VALOR_BASE}
+	} else {
+		votante.voto = votante.pilaDeVotos.VerTope()
 	}
-	votante.voto = votante.pilaDeVotos.VerTope()
 	return nil
 }
 
-func (votante *votanteImplementacion) FinVoto() (Voto, error) {
+func (votante *votanteImplementacion) FinVoto(partido *[]Partido) error {
 	if votante.estadoVoto {
-		err := new(errores.ErrorVotanteFraudulento)
-		return Voto{}, err
-
-	} else {
-		votante.estadoVoto = true
-		return votante.voto, nil
+		err := errores.ErrorVotanteFraudulento{Dni: votante.dni}
+		return err
 	}
+	if votante.voto.Impugnado {
+		votosImpugnados++
+	} else if votante.pilaDeVotos.EstaVacia() {
+		guardarVoto(votante.voto.VotoPorTipo, partido)
+	} else {
+		guardarVoto(votante.pilaDeVotos.VerTope().VotoPorTipo, partido)
+	}
+	votante.estadoVoto = true
+	return nil
+}
 
+func ConvertirTipoVoto(candidato string) (TipoVoto, error) {
+	switch strings.ToUpper(candidato) {
+	case "PRESIDENTE":
+		return PRESIDENTE, nil
+	case "GOBERNADOR":
+		return GOBERNADOR, nil
+	case "INTENDENTE":
+		return INTENDENTE, nil
+	default:
+		return TipoVoto(0), new(errores.ErrorTipoVoto)
+	}
+}
+
+func CheckearDniValido(dni int, padron []Votante) error {
+	if dni < 0 || dni > 60000000 {
+		return new(errores.DNIError)
+	}
+	for _, votante := range padron {
+		if dni == votante.LeerDNI() {
+			return nil
+		}
+	}
+	return new(errores.DNIFueraPadron)
+}
+
+func guardarVoto(votos [CANT_VOTACION]int, partidos *[]Partido) {
+	for tipo, alternativa := range votos {
+		partidoElegido := (*partidos)[alternativa]
+		partidoElegido.VotadoPara(TipoVoto(tipo))
+	}
 }

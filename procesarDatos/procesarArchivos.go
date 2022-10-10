@@ -3,17 +3,15 @@ package procesarDatos
 import (
 	"bufio"
 	"os"
-	"rerepolez/errores"
 	"rerepolez/votos"
 	"strconv"
 	"strings"
 )
 
-func procesarPartidos(archivoNombre string) []votos.Partido {
+func procesarPartidos(archivoNombre string) ([]votos.Partido, bool) {
 	archivo, err := os.Open(archivoNombre)
 	if err != nil {
-		error_ := new(errores.ErrorLeerArchivo)
-		panic(error_.Error())
+		return nil, true
 	}
 	defer archivo.Close()
 
@@ -26,14 +24,13 @@ func procesarPartidos(archivoNombre string) []votos.Partido {
 		candidatos := [votos.CANT_VOTACION]string{linea[votos.PRESIDENTE+1], linea[votos.GOBERNADOR+1], linea[votos.INTENDENTE+1]}
 		partidos = append(partidos, votos.CrearPartido(nombrePartido, candidatos))
 	}
-	return partidos
+	return partidos, false
 }
 
-func procesarPadron(archivoNombre string) []votos.Votante {
+func procesarPadron(archivoNombre string) ([]votos.Votante, bool) {
 	archivo, err := os.Open(archivoNombre)
 	if err != nil {
-		error_ := new(errores.ErrorLeerArchivo)
-		panic(error_.Error())
+		return nil, true
 	}
 	defer archivo.Close()
 
@@ -44,20 +41,19 @@ func procesarPadron(archivoNombre string) []votos.Votante {
 		nuevoVotante := votos.CrearVotante(padron)
 		votantes = append(votantes, nuevoVotante)
 	}
-	return votantes
+	return votantes, false
 }
 
-func ProcesarArchivos(args []string) ([]votos.Partido, []votos.Votante) {
+func ProcesarArchivos(args []string) ([]votos.Partido, []votos.Votante, bool) {
 	if len(args) != 2 {
-		err := new(errores.ErrorLeerArchivo)
-		panic(err.Error())
+		return nil, nil, true
 	}
 	const (
 		PARTIDOS_POS = 0
 		PADRON_POS   = 1
 	)
+	partidos, errPartidos := procesarPartidos(args[PARTIDOS_POS])
+	padron, errPadron := procesarPadron(args[PADRON_POS])
 
-	partidos := procesarPartidos(args[PARTIDOS_POS])
-	padron := procesarPadron(args[PADRON_POS])
-	return partidos, padron
+	return partidos, padron, errPadron || errPartidos
 }
