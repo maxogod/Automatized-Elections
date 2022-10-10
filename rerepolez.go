@@ -17,11 +17,6 @@ var (
 	CANDIDATOS = [3]string{"Presidente", "Gobernador", "Intendente"}
 )
 
-// go build ~ ./rerepolez <archivo partidos> <archivo padron>
-
-// go build rerepolez
-// ./rerepolez tests/01_partidos tests/02_padron
-
 func main() {
 	partidos, padron, errLectura := PA.ProcesarArchivos(ARGS)
 	if errLectura {
@@ -29,7 +24,6 @@ func main() {
 		return
 	}
 	colaVotantes := COLA.CrearColaEnlazada[V.Votante]()
-	yaVotaron := make([]V.Votante, 0)
 
 	scan := bufio.NewScanner(os.Stdin)
 
@@ -40,17 +34,11 @@ func main() {
 
 		switch commndo {
 		case "ingresar":
-			dni, _ := strconv.Atoi(entrada[1])
-			errorDni := V.CheckearDniValido(dni, padron)
+			dni, _ := strconv.Atoi(entrada[1]) // O(n)
+			indiceEnPadron, errorDni := V.CheckearDniValido(dni, padron)
 
 			if errorDni == nil {
-				if votanteFradulento(yaVotaron, dni) {
-					// TODO sacarlo de padron
-					break
-				}
-				votanteActual := V.CrearVotante(dni)
-				colaVotantes.Encolar(votanteActual)
-				yaVotaron = append(yaVotaron, votanteActual)
+				colaVotantes.Encolar(padron[indiceEnPadron])
 			}
 			mostrarError(errorDni, "OK")
 			break
@@ -87,12 +75,15 @@ func main() {
 			fmt.Println(new(errores.ErrorParametros))
 		}
 	}
+	if !colaVotantes.EstaVacia() {
+		fmt.Println(new(errores.ErrorCiudadanosSinVotar))
+	}
 	salida(partidos)
 }
 
 func salida(partidos []V.Partido) {
 	for tipoVoto, candidato := range CANDIDATOS {
-		fmt.Printf("%s : \n", candidato)
+		fmt.Printf("%s:\n", candidato)
 		for _, partido := range partidos {
 			fmt.Println(partido.ObtenerResultado(V.TipoVoto(tipoVoto)))
 		}
@@ -112,9 +103,9 @@ func votanteFradulento(yaVotaron []V.Votante, dni int) bool {
 }
 
 func mostrarError(err error, alternativa string) {
-	if err != nil || alternativa == "" {
+	if err != nil {
 		fmt.Println(err)
-	} else {
+	} else if alternativa != "" {
 		fmt.Println(alternativa)
 	}
 }
