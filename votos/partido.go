@@ -2,8 +2,6 @@ package votos
 
 var votosImpugnados int
 
-const PARTIDO_BLANCO = 0
-
 //Partido modela un partido político, con sus alternativas para cada uno de los tipos de votaciones
 type Partido interface {
 

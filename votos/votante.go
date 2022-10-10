@@ -6,11 +6,10 @@ const (
 	PRESIDENTE TipoVoto = iota
 	GOBERNADOR
 	INTENDENTE
-)
-
-const (
+	NINGUNO       = -1
 	CANT_VOTACION = INTENDENTE + 1
-	LISTA_IMPUGNA = 0
+	IMPUGNADO     = 0
+	FRAUDULENTO   = true
 )
 
 // Voto tiene guardada la información de un voto emitido, por cada tipo de voto posible.
