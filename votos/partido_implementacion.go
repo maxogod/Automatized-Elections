@@ -19,7 +19,7 @@ func CrearPartido(nombre string, candidatos [CANT_VOTACION]string) Partido {
 	return partido
 }
 
-func CrearVotosEnBlanco() Partido {
+func CrearPartidoEnBlanco() Partido {
 	return new(partidoEnBlanco)
 }
 

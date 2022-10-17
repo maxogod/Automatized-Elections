@@ -9,10 +9,10 @@ import (
 	"strings"
 )
 
-func procesarPartidos(archivoNombre string) ([]votos.Partido, bool) {
+func procesarPartidos(archivoNombre string) ([]votos.Partido, error) {
 	archivo, err := os.Open(archivoNombre)
 	if err != nil {
-		return nil, true
+		return nil, new(errores.ErrorLeerArchivo)
 	}
 	defer archivo.Close()
 
@@ -20,7 +20,7 @@ func procesarPartidos(archivoNombre string) ([]votos.Partido, bool) {
 		NOMBRE_PARTIDO_POS = 0
 		SEPARADOR          = ","
 	)
-	partidos := []votos.Partido{votos.CrearVotosEnBlanco()} // Inicializado con el partido en blanco en pos 0
+	partidos := []votos.Partido{votos.CrearPartidoEnBlanco()} // Inicializado con el partido en blanco en pos 0
 	s := bufio.NewScanner(archivo)
 	for s.Scan() {
 		linea := strings.Split(strings.TrimSuffix(s.Text(), "\n"), SEPARADOR)
@@ -28,13 +28,13 @@ func procesarPartidos(archivoNombre string) ([]votos.Partido, bool) {
 		candidatos := [votos.CANT_VOTACION]string{linea[votos.PRESIDENTE+1], linea[votos.GOBERNADOR+1], linea[votos.INTENDENTE+1]}
 		partidos = append(partidos, votos.CrearPartido(nombrePartido, candidatos))
 	}
-	return partidos, false
+	return partidos, nil
 }
 
-func procesarPadron(archivoNombre string) ([]votos.Votante, bool) {
+func procesarPadron(archivoNombre string) ([]votos.Votante, error) {
 	archivo, err := os.Open(archivoNombre)
 	if err != nil {
-		return nil, true
+		return nil, new(errores.ErrorLeerArchivo)
 	}
 	defer archivo.Close()
 
@@ -45,7 +45,7 @@ func procesarPadron(archivoNombre string) ([]votos.Votante, bool) {
 		nuevoVotante := votos.CrearVotante(padron)
 		votantes = append(votantes, nuevoVotante)
 	}
-	return ordenarVotantes(votantes), false
+	return ordenarVotantes(votantes), nil
 }
 
 func ProcesarArchivos(args []string) ([]votos.Partido, []votos.Votante, error) {
@@ -58,9 +58,12 @@ func ProcesarArchivos(args []string) ([]votos.Partido, []votos.Votante, error) {
 	)
 	partidos, errPartidos := procesarPartidos(args[PARTIDOS_POS])
 	padron, errPadron := procesarPadron(args[PADRON_POS])
-	if errPadron || errPartidos {
-		return nil, nil, new(errores.ErrorLeerArchivo)
-	}
 
-	return partidos, padron, nil
+	return partidos, padron, func() error {
+		if errPartidos != nil {
+			return errPartidos
+		} else {
+			return errPadron
+		}
+	}()
 }

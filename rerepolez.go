@@ -4,128 +4,127 @@ import (
 	"bufio"
 	"fmt"
 	"os"
-	COLA "rerepolez/cola"
+	"rerepolez/cola"
 	"rerepolez/errores"
-	PA "rerepolez/procesarDatos"
-	V "rerepolez/votos"
+	pa "rerepolez/procesarDatos"
+	v "rerepolez/votos"
 	"strconv"
 	"strings"
 )
 
 const (
-	COMANDO_INGRESADO = iota
-	PRIMER_PARAMETRO
-	SEGUNDO_PARAMETRO
-	OK        = "OK"
-	VACIO     = ""
+	INGRESAR  = "ingresar"
+	VOTAR     = "votar"
+	DESHACER  = "deshacer"
+	FIN_VOTAR = "fin-votar"
 	SEPARADOR = " "
 )
 
 var (
-	ARGS       = os.Args[PRIMER_PARAMETRO:]
-	CANDIDATOS = [V.CANT_VOTACION]string{"Presidente", "Gobernador", "Intendente"}
+	ARGS = os.Args[1:]
 )
 
 func main() {
-	partidos, padron, errLectura := PA.ProcesarArchivos(ARGS)
-	if mostrarError(errLectura, VACIO) {
+	partidos, padron, errLectura := pa.ProcesarArchivos(ARGS)
+	if error_Y_Bool(errLectura) {
 		return
 	}
-	colaVotantes := COLA.CrearColaEnlazada[V.Votante]()
+	votantes := cola.CrearColaEnlazada[v.Votante]()
 
 	scan := bufio.NewScanner(os.Stdin)
 	for scan.Scan() {
 		entrada := strings.Split(scan.Text(), SEPARADOR)
-		comando := entrada[COMANDO_INGRESADO]
+		comando := entrada[0]
 
 		switch comando {
-		case "ingresar":
-			dni, _ := strconv.Atoi(entrada[PRIMER_PARAMETRO])
-			indiceEnPadron, errorDni := V.CheckearDniValido(dni, padron)
+		case INGRESAR:
+			dni, _ := strconv.Atoi(entrada[1])
+			// Atoi devuelve 0 si no casteable a int lo cual es un dni invalido, por esta razon no se maneja el error
+			// (en este caso)
+			indiceEnPadron, errorDni := pa.CheckearDniValido(dni, padron)
 			if errorDni == nil {
-				colaVotantes.Encolar(padron[indiceEnPadron])
+				votantes.Encolar(padron[indiceEnPadron])
 			}
-			mostrarError(errorDni, OK)
-			break
+			error_O_Ok(errorDni) // mostrar al usuario si tod0 ok o tod0 mal
 
-		case "votar":
-			if colaVotantes.EstaVacia() {
+		case VOTAR:
+			if votantes.EstaVacia() {
 				fmt.Println(new(errores.FilaVacia))
 				break
 			}
-			tipoVoto, errConversion := V.ConvertirTipoVoto(entrada[PRIMER_PARAMETRO])
-			if mostrarError(errConversion, VACIO) || !esNumerico(entrada[SEGUNDO_PARAMETRO]) {
+			tipoVoto, errConversion := v.ConvertirTipoVoto(entrada[1])
+			nroLista, errConverAlternativa := strconv.Atoi(entrada[2])
+
+			if errConverAlternativa != nil {
+				errConverAlternativa = new(errores.ErrorAlternativaInvalida)
+			}
+			if error_Y_Bool(errConversion) || error_Y_Bool(errConverAlternativa) {
 				break
 			}
-			nroLista, _ := strconv.Atoi(entrada[SEGUNDO_PARAMETRO])
 
-			votanteActual := colaVotantes.VerPrimero()
-			errAlternativa, fraudulento := votanteActual.Votar(tipoVoto, nroLista, len(partidos))
+			votanteActual := votantes.VerPrimero()
+			errAlVotar, fraudulento := votanteActual.Votar(tipoVoto, nroLista, len(partidos))
 			if fraudulento {
-				colaVotantes.Desencolar()
+				votantes.Desencolar()
 			}
-			mostrarError(errAlternativa, OK)
-			break
+			error_O_Ok(errAlVotar)
 
-		case "deshacer":
-			if colaVotantes.EstaVacia() {
+		case DESHACER:
+			if votantes.EstaVacia() {
 				fmt.Println(new(errores.FilaVacia))
 				break
 			}
-			errDeshacer, fraudulento := (colaVotantes.VerPrimero()).Deshacer()
+			errDeshacer, fraudulento := (votantes.VerPrimero()).Deshacer()
 			if fraudulento {
-				colaVotantes.Desencolar()
+				votantes.Desencolar()
 			}
-			mostrarError(errDeshacer, OK)
-			break
+			error_O_Ok(errDeshacer)
 
-		case "fin-votar":
-			if colaVotantes.EstaVacia() {
+		case FIN_VOTAR:
+			if votantes.EstaVacia() {
 				fmt.Println(new(errores.FilaVacia))
 				break
 			}
-			errFraudulento := colaVotantes.Desencolar().FinVoto(&partidos)
-			mostrarError(errFraudulento, OK)
-
-		case "seAprueba?":
-			fmt.Println("Obvio papa promedio 10 :) xd")
+			errFraudulento := votantes.Desencolar().FinVoto(&partidos)
+			error_O_Ok(errFraudulento)
 
 		default:
 			fmt.Println(new(errores.ErrorParametros))
 		}
 	}
-	if !colaVotantes.EstaVacia() {
+	if !votantes.EstaVacia() {
 		fmt.Println(new(errores.ErrorCiudadanosSinVotar))
 	}
 	salida(partidos)
 }
 
-func salida(partidos []V.Partido) {
-	for tipoVoto, candidato := range CANDIDATOS {
+// salida Printea los resultados de la votacion
+func salida(partidos []v.Partido) {
+	tipoDeCandidatos := []string{"Presidente", "Gobernador", "Intendente"}
+	for tipoVoto, candidato := range tipoDeCandidatos {
 		fmt.Printf("%s:\n", candidato)
 		for _, partido := range partidos {
-			fmt.Println(partido.ObtenerResultado(V.TipoVoto(tipoVoto)))
+			fmt.Println(partido.ObtenerResultado(v.TipoVoto(tipoVoto)))
 		}
 		fmt.Println()
 	}
-	fmt.Println(V.VotosImpugnados())
+	fmt.Println(v.VotosImpugnados())
 }
 
-func mostrarError(err error, alternativa string) bool {
+// error_O_Ok printea el error pasado en caso != nil sino printea OK.
+func error_O_Ok(err error) {
+	if err != nil {
+		fmt.Println(err)
+	} else {
+		fmt.Println("OK")
+	}
+}
+
+// error_Y_Bool printea el error pasado en caso != nil, retorna bool si hubo o no error.
+func error_Y_Bool(err error) bool {
 	if err != nil {
 		fmt.Println(err)
 		return true
-	} else if alternativa != VACIO {
-		fmt.Println(alternativa)
 	}
 	return false
-}
-
-func esNumerico(cadena string) bool {
-	const TAMANIO_BIT = 64
-	_, err := strconv.ParseFloat(cadena, TAMANIO_BIT)
-	if err != nil {
-		fmt.Println(new(errores.ErrorAlternativaInvalida))
-	}
-	return err == nil
 }
