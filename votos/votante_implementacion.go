@@ -8,7 +8,6 @@ import (
 
 type votanteImplementacion struct {
 	dni            int
-	voto           Voto
 	yaVoto         bool
 	historialVotos pila.Pila[Voto]
 }
@@ -28,16 +27,20 @@ func (votante *votanteImplementacion) Votar(tipo TipoVoto, alternativa, lenParti
 	if votante.yaVoto {
 		return errores.ErrorVotanteFraudulento{Dni: votante.dni}, FRAUDULENTO
 	}
+	votoActual := *new(Voto)
+	if !votante.historialVotos.EstaVacia() {
+		votoActual = votante.historialVotos.VerTope()
+	}
 
 	if alternativa < 0 || alternativa >= lenPartidos {
 		return new(errores.ErrorAlternativaInvalida), !FRAUDULENTO
 	} else if alternativa == IMPUGNADO {
-		votante.voto.Impugnado = true
+		votoActual.Impugnado = true
 	} else {
-		votante.voto.VotoPorTipo[tipo] = alternativa
+		votoActual.VotoPorTipo[tipo] = alternativa
 	}
 
-	votante.historialVotos.Apilar(votante.voto)
+	votante.historialVotos.Apilar(votoActual)
 	return nil, !FRAUDULENTO
 }
 
@@ -49,15 +52,8 @@ func (votante *votanteImplementacion) Deshacer() (error, bool) {
 	if votante.historialVotos.EstaVacia() {
 		return new(errores.ErrorNoHayVotosAnteriores), !FRAUDULENTO
 	}
-	votante.historialVotos.Desapilar()
 
-	if votante.historialVotos.EstaVacia() {
-		const VALOR_BASE = 0
-		votante.voto.Impugnado = false
-		votante.voto.VotoPorTipo = [CANT_VOTACION]int{VALOR_BASE, VALOR_BASE, VALOR_BASE}
-	} else {
-		votante.voto = votante.historialVotos.VerTope()
-	}
+	votante.historialVotos.Desapilar()
 
 	return nil, !FRAUDULENTO
 }
@@ -68,11 +64,12 @@ func (votante *votanteImplementacion) FinVoto(partido *[]Partido) error {
 		return err
 	}
 
-	if votante.voto.Impugnado {
-		votosImpugnados++
-	} else if votante.historialVotos.EstaVacia() {
+	if votante.historialVotos.EstaVacia() {
 		// Guardar voto en blanco
-		guardarVoto(votante.voto.VotoPorTipo, partido)
+		votoBlanco := new(Voto)
+		guardarVoto(votoBlanco.VotoPorTipo, partido)
+	} else if votante.historialVotos.VerTope().Impugnado {
+		votosImpugnados++
 	} else {
 		guardarVoto(votante.historialVotos.VerTope().VotoPorTipo, partido)
 	}
