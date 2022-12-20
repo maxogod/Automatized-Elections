@@ -6,7 +6,7 @@ For this purpose the program takes to mandatory parameters <file with all the po
 
 ## To Run:
 ~~~
-  Execute the 'elecciones' file or recompile the 'elecciones' package
+  Execute the 'elecciones' file or recompile the 'elecciones' package < go build elecciones >
 ~~~
 
 ## Commands:
