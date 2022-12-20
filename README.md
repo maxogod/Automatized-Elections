@@ -8,7 +8,7 @@ maquina/ejecucion y los partidos validos por los cuales se puede votar.
 ## Para correr:
 ~~~
 Ejecutar el archivo 'elecciones' o de ser necesario recompilar el package 'elecciones' 
-para luego ejecutarlo.
+para luego ejecutarlo. < go build elecciones >
 ~~~
 
 ## Comandos:
