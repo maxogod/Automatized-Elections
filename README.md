@@ -19,7 +19,7 @@ Permite que un votante se loguee con su dni
 ~~~
 votar <TIPO-VOTO> <NumeroLista>
 ~~~
-Permite que el votante agrege una parte de la voleta a su voto.
+Permite que el votante agrege una parte de la boleta a su voto.
 TIPO-VOTO = Presidente/Gobernador/Intendente
 NumeroLista = ID del partido politico
 
