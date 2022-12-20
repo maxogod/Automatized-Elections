@@ -2,12 +2,12 @@ package main
 
 import (
 	"bufio"
+	"elecciones/cola"
+	"elecciones/errores"
+	pa "elecciones/procesarDatos"
+	v "elecciones/votos"
 	"fmt"
 	"os"
-	"rerepolez/cola"
-	"rerepolez/errores"
-	pa "rerepolez/procesarDatos"
-	v "rerepolez/votos"
 	"strconv"
 	"strings"
 )

@@ -1,8 +1,8 @@
 package procesarDatos
 
 import (
-	"rerepolez/errores"
-	v "rerepolez/votos"
+	"elecciones/errores"
+	v "elecciones/votos"
 )
 
 func CheckearDniValido(dni int, padron []v.Votante) (indiceEnPadron int, err error) {

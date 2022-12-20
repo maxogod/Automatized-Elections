@@ -1,8 +1,8 @@
 package votos
 
 import (
-	"rerepolez/errores"
-	"rerepolez/pila"
+	"elecciones/errores"
+	"elecciones/pila"
 	"strings"
 )
 

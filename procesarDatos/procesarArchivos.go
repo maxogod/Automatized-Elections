@@ -2,9 +2,9 @@ package procesarDatos
 
 import (
 	"bufio"
+	"elecciones/errores"
+	"elecciones/votos"
 	"os"
-	"rerepolez/errores"
-	"rerepolez/votos"
 	"strconv"
 	"strings"
 )

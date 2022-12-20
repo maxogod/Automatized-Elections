@@ -1,6 +1,6 @@
 package procesarDatos
 
-import V "rerepolez/votos"
+import V "elecciones/votos"
 
 func ordenarVotantes(votantes []V.Votante) []V.Votante {
 
