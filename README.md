@@ -1,4 +1,5 @@
 # Automatizacion de votaciones
+<a href="./English-README.md">English DOC</a>
 
 El programa Elecciones automatiza el proceso de votar.
 Para esto en la inicializacion del programa se le dan los dnis que pueden votar en esta
