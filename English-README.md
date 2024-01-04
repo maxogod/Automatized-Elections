@@ -1,13 +1,14 @@
 # Votation Automatization
 
 The program 'elecciones' automatizes the voting process.
-For this purpose the program takes to mandatory parameters <file with all the political Parties> and 
-<file with all the valid IDs that can vote in this machine/execution>
+For this purpose the program takes two mandatory parameters 
+* a file with all the political Parties
+* a file with all the valid IDs that are allowed to vote in this machine/run
 
 ## To Run:
-~~~
-  Execute the 'elecciones' file or recompile the 'elecciones' package < go build elecciones >
-~~~
+
+Execute the 'elecciones' file or recompile the 'elecciones' package with the command `go build elecciones`
+
 
 ## Commands:
 ~~~
